@@ -3,8 +3,9 @@
 // 音楽の再生とミュートの状態を保持
 let audio = document.getElementById('bgm');
 let muteButton = document.getElementById('mute-btn');
+let playButton = document.getElementById('play-btn');
 
-// ページが読み込まれた時に音楽を再生する
+// ページが読み込まれた時に音楽を再生しない
 window.onload = function () {
     // sessionStorage から音楽の再生状態を取得
     if (sessionStorage.getItem('audioMuted') === 'true') {
@@ -13,11 +14,17 @@ window.onload = function () {
     } else {
         audio.muted = false;
         muteButton.textContent = "🔊 ミュート";
-        // 音楽を再生する
-        audio.play().catch((error) => {
-            console.log('音楽の再生に失敗しました:', error);
-        });
     }
+};
+
+// 音楽再生ボタンのクリックイベント
+playButton.onclick = function () {
+    audio.play().then(() => {
+        console.log("音楽が再生されました");
+        playButton.style.display = 'none'; // 再生ボタンを非表示にする
+    }).catch((error) => {
+        console.log('音楽の再生に失敗しました:', error);
+    });
 };
 
 // ミュートボタンのクリックイベント
