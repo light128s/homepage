@@ -1,33 +1,29 @@
-const bgm = document.getElementById("bgm");
-const muteBtn = document.getElementById("mute-btn");
+// bgm.js
 
-// 初期音量設定（10%）
-bgm.volume = 0.1;
+// 音楽の再生とミュートの状態を保持
+let audio = document.getElementById('bgm');
+let muteButton = document.getElementById('mute-btn');
 
-// 初期状態をsessionStorageから読み込み
-if (sessionStorage.getItem("muted") === "true") {
-    bgm.muted = true;
-    muteBtn.textContent = "🔇 ミュート解除";
-} else {
-    bgm.muted = false;
-    muteBtn.textContent = "🔊 ミュート";
-}
-
-// ページ遷移時にBGMが再生されるかどうかの確認
-if (sessionStorage.getItem("bgmPlaying") === "true") {
-    bgm.play();  // 明示的に再生する
-} else {
-    bgm.pause();  // 再生しない
-}
+// sessionStorage から音楽の再生状態を取得
+window.onload = function () {
+    if (sessionStorage.getItem('audioMuted') === 'true') {
+        audio.muted = true;
+        muteButton.textContent = "🔈 ミュート解除";
+    } else {
+        audio.muted = false;
+        muteButton.textContent = "🔊 ミュート";
+    }
+};
 
 // ミュートボタンのクリックイベント
-muteBtn.addEventListener("click", () => {
-    bgm.muted = !bgm.muted;
-    muteBtn.textContent = bgm.muted ? "🔇 ミュート解除" : "🔊 ミュート";
-    sessionStorage.setItem("muted", bgm.muted);
-});
-
-// BGMの再生状態をセッションストレージに保存
-window.addEventListener('beforeunload', () => {
-    sessionStorage.setItem("bgmPlaying", !bgm.paused);
-});
+muteButton.onclick = function () {
+    if (audio.muted) {
+        audio.muted = false;
+        muteButton.textContent = "🔊 ミュート";
+        sessionStorage.setItem('audioMuted', 'false'); // 状態を保存
+    } else {
+        audio.muted = true;
+        muteButton.textContent = "🔈 ミュート解除";
+        sessionStorage.setItem('audioMuted', 'true'); // 状態を保存
+    }
+};
