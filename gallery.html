@@ -52,9 +52,9 @@
         <nav>
             <ul>
                 <li><a href="index.html">トップ</a></li>
-                <li><a href="status.html">サーバーステータス</a></li>
+                <li><a href="status.html">ステータス</a></li>
                 <li><a href="gallery.html">ギャラリー</a></li>
-         　　　　<li><a href="submit.html">動画投稿</a></li>
+               <li><a href="submit.html">動画投稿</a></li>
                 <li><a href="todo.html">イベント</a></li>
             </ul>
         </nav>
@@ -75,7 +75,7 @@
         async function fetchVideos() {
             const SHEET_ID = 'YOUR_SHEET_ID'; // スプレッドシートのID
             const API_KEY = 'YOUR_API_KEY'; // Google APIキー
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A2:D?key=${API_KEY}`;
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/フォームの回答1!A2:D?key=${API_KEY}`;
             try {
                 const response = await fetch(url);
                 const data = await response.json();
