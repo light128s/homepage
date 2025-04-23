@@ -60,8 +60,8 @@
         // 最初の音量を10%に設定（0が無音、1が最大音量）
         bgm.volume = 0.1; 
         
-        // 初期状態をlocalStorageから読み込み
-        if (localStorage.getItem("muted") === "true") {
+        // 初期状態をsessionStorageから読み込み
+        if (sessionStorage.getItem("muted") === "true") {
             bgm.muted = true;
             muteBtn.textContent = "🔇 ミュート解除";
         }
@@ -69,7 +69,23 @@
         muteBtn.addEventListener("click", () => {
             bgm.muted = !bgm.muted;
             muteBtn.textContent = bgm.muted ? "🔇 ミュート解除" : "🔊 ミュート";
-            localStorage.setItem("muted", bgm.muted);
+            sessionStorage.setItem("muted", bgm.muted);
+        });
+
+        // ページ読み込み時に音楽の再生状態を維持
+        if (sessionStorage.getItem("playing") === "true") {
+            bgm.play();
+        } else {
+            bgm.pause();
+        }
+
+        // 音楽の再生・停止状態を監視
+        bgm.addEventListener("play", () => {
+            sessionStorage.setItem("playing", "true");
+        });
+
+        bgm.addEventListener("pause", () => {
+            sessionStorage.setItem("playing", "false");
         });
     </script>
 </body>
