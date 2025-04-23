@@ -17,6 +17,10 @@
             padding: 10px;
             border-radius: 5px;
             background: #f9f9f9;
+            transition: transform 0.3s ease;
+        }
+        .video-container:hover {
+            transform: scale(1.05); /* ホバー時に少し拡大 */
         }
         .video-title {
             margin: 0 0 10px;
@@ -36,28 +40,34 @@
             width: 100%;
             height: 100%;
         }
+        .error-message {
+            color: red;
+            font-size: 1.2em;
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1>マイクラサーバーギャラリー</h1>
+        <h1>ギャラリー</h1>
         <nav>
             <ul>
                 <li><a href="index.html">トップ</a></li>
-                <li><a href="status.html">ステータス</a></li>
+                <li><a href="status.html">サーバーステータス</a></li>
                 <li><a href="gallery.html">ギャラリー</a></li>
-               
-                <li><a href="submit.html">動画投稿</a></li>
-                 <li><a href="todo.html">イベント</a></li>
+         　　　　<li><a href="submit.html">動画投稿</a></li>
+                <li><a href="todo.html">イベント</a></li>
             </ul>
         </nav>
     </header>
 
     <main>
-        <h2>クリップ</h2>
+        <h2>ゲーム動画クリップ</h2>
         <p><a href="submit.html">新しい動画を投稿する</a></p>
         <div class="video-gallery" id="video-gallery">
             <!-- 動画はJSで動的に追加 -->
+        </div>
+        <div id="error-message" class="error-message" style="display: none;">
+            動画を読み込めませんでした。後ほどもう一度お試しください。
         </div>
     </main>
 
@@ -65,14 +75,21 @@
         async function fetchVideos() {
             const SHEET_ID = 'YOUR_SHEET_ID'; // スプレッドシートのID
             const API_KEY = 'YOUR_API_KEY'; // Google APIキー
-          const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/フォームの回答 1!A2:D?key=${API_KEY}`;
-
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A2:D?key=${API_KEY}`;
             try {
                 const response = await fetch(url);
                 const data = await response.json();
                 const videos = data.values || [];
                 const gallery = document.getElementById('video-gallery');
-                gallery.innerHTML = '';
+                const errorMessage = document.getElementById('error-message');
+                gallery.innerHTML = ''; // ギャラリーを初期化
+                errorMessage.style.display = 'none'; // エラーメッセージを非表示
+
+                if (videos.length === 0) {
+                    gallery.innerHTML = '<p>動画がありません。</p>';
+                    return;
+                }
+
                 videos.forEach(([timestamp, title, url, videoId]) => {
                     if (videoId) {
                         const videoElement = `
@@ -87,7 +104,7 @@
                 });
             } catch (error) {
                 console.error('動画取得エラー:', error);
-                document.getElementById('video-gallery').innerHTML = '<p>動画を読み込めませんでした。</p>';
+                document.getElementById('error-message').style.display = 'block'; // エラーメッセージを表示
             }
         }
 
