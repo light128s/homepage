@@ -15,7 +15,7 @@
                 <li><a href="status.html">サーバーステータス</a></li>
                 <li><a href="gallery.html">ギャラリー</a></li>
                 <li><a href="submit.html">動画投稿</a></li>
-                <li><a href="todo.html">やりがたいことリスト</a></li>
+                <li><a href="todo.html">イベント</a></li>
             </ul>
         </nav>
     </header>
@@ -33,13 +33,32 @@
     </main>
 
     <!-- BGM -->
-    <audio autoplay loop>
-        <source src="assets/bgm.mp3" type="audio/mp3">
-        お使いのブラウザでは音声が再生できません。
-    </audio>
-
+   <audio id="bgm" autoplay loop>
+    <source src="assets/bgm.mp3" type="audio/mp3">
+    お使いのブラウザでは音声が再生できません。
+</audio>
+<button id="mute-btn" style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 5px 10px; cursor: pointer;">
+    🔊 ミュート
+</button>
     <footer>
         <p>&copy; 2025 Lightサーバー</p>
     </footer>
+    
+    <script>
+    const bgm = document.getElementById("bgm");
+    const muteBtn = document.getElementById("mute-btn");
+
+    // 初期状態をlocalStorageから読み込み
+    if (localStorage.getItem("muted") === "true") {
+        bgm.muted = true;
+        muteBtn.textContent = "🔇 ミュート解除";
+    }
+
+    muteBtn.addEventListener("click", () => {
+        bgm.muted = !bgm.muted;
+        muteBtn.textContent = bgm.muted ? "🔇 ミュート解除" : "🔊 ミュート";
+        localStorage.setItem("muted", bgm.muted);
+    });
+</script>
 </body>
 </html>
