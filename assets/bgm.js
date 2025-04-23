@@ -1,41 +1,31 @@
-// bgm.js
+const audio = document.getElementById('bgm');
+const muteBtn = document.getElementById('mute-btn');
+const playBtn = document.getElementById('play-btn');
 
-// 音楽の再生とミュートの状態を保持
-let audio = document.getElementById('bgm');
-let muteButton = document.getElementById('mute-btn');
-let playButton = document.getElementById('play-btn');
-
-// ページが読み込まれた時に音楽を再生しない
-window.onload = function () {
-    // sessionStorage から音楽の再生状態を取得
-    if (sessionStorage.getItem('audioMuted') === 'true') {
+window.onload = () => {
+    if (localStorage.getItem('audioMuted') === 'true') {
         audio.muted = true;
-        muteButton.textContent = "🔈 ミュート解除";
+        muteBtn.textContent = "🔈 ミュート解除";
     } else {
         audio.muted = false;
-        muteButton.textContent = "🔊 ミュート";
+        muteBtn.textContent = "🔊 ミュート";
+    }
+
+    if (localStorage.getItem('audioPlaying') === 'true') {
+        audio.play().catch(err => console.log("再生失敗:", err));
+        playBtn.style.display = 'none';
     }
 };
 
-// 音楽再生ボタンのクリックイベント
-playButton.onclick = function () {
+playBtn.onclick = () => {
     audio.play().then(() => {
-        console.log("音楽が再生されました");
-        playButton.style.display = 'none'; // 再生ボタンを非表示にする
-    }).catch((error) => {
-        console.log('音楽の再生に失敗しました:', error);
+        playBtn.style.display = 'none';
+        localStorage.setItem('audioPlaying', 'true');
     });
 };
 
-// ミュートボタンのクリックイベント
-muteButton.onclick = function () {
-    if (audio.muted) {
-        audio.muted = false;
-        muteButton.textContent = "🔊 ミュート";
-        sessionStorage.setItem('audioMuted', 'false'); // 状態を保存
-    } else {
-        audio.muted = true;
-        muteButton.textContent = "🔈 ミュート解除";
-        sessionStorage.setItem('audioMuted', 'true'); // 状態を保存
-    }
+muteBtn.onclick = () => {
+    audio.muted = !audio.muted;
+    localStorage.setItem('audioMuted', audio.muted ? 'true' : 'false');
+    muteBtn.textContent = audio.muted ? "🔈 ミュート解除" : "🔊 ミュート";
 };
