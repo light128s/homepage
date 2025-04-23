@@ -1,35 +1,36 @@
-console.log("bgm.js 読み込まれたよ！");
+window.addEventListener('DOMContentLoaded', () => {
+    const audio = document.getElementById("bgm");
+    const muteBtn = document.getElementById("mute-btn");
+    const playBtn = document.getElementById("play-btn");
 
-const audio = document.getElementById('bgm');
-const muteBtn = document.getElementById('mute-btn');
-const playBtn = document.getElementById('play-btn');
+    console.log("bgm.js loaded!");
 
-window.onload = () => {
     audio.volume = 0.2;
-    
-    if (localStorage.getItem('audioMuted') === 'true') {
+
+    if (localStorage.getItem("audioMuted") === "true") {
         audio.muted = true;
         muteBtn.textContent = "🔈 ミュート解除";
+    }
+
+    if (localStorage.getItem("audioPlaying") === "true") {
+        audio.play().catch(err => {
+            console.log("自動再生失敗:", err);
+            playBtn.style.display = "inline";
+        });
     } else {
-        audio.muted = false;
-        muteBtn.textContent = "🔊 ミュート";
+        playBtn.style.display = "inline";
     }
 
-    if (localStorage.getItem('audioPlaying') === 'true') {
-        audio.play().catch(err => console.log("再生失敗:", err));
-        playBtn.style.display = 'none';
-    }
-};
-
-playBtn.onclick = () => {
-    audio.play().then(() => {
-        playBtn.style.display = 'none';
-        localStorage.setItem('audioPlaying', 'true');
+    muteBtn.addEventListener("click", () => {
+        audio.muted = !audio.muted;
+        muteBtn.textContent = audio.muted ? "🔈 ミュート解除" : "🔊 ミュート";
+        localStorage.setItem("audioMuted", audio.muted);
     });
-};
 
-muteBtn.onclick = () => {
-    audio.muted = !audio.muted;
-    localStorage.setItem('audioMuted', audio.muted ? 'true' : 'false');
-    muteBtn.textContent = audio.muted ? "🔈 ミュート解除" : "🔊 ミュート";
-};
+    playBtn.addEventListener("click", () => {
+        audio.play().then(() => {
+            localStorage.setItem("audioPlaying", true);
+            playBtn.style.display = "none";
+        });
+    });
+});
