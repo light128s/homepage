@@ -1,12 +1,10 @@
+// bgm.js
 window.addEventListener('DOMContentLoaded', () => {
     const audio = document.getElementById("bgm");
     const muteBtn = document.getElementById("mute-btn");
     const playBtn = document.getElementById("play-btn");
 
-    console.log("bgm.js loaded!");
-
-    audio.volume = 0.2;
-
+    // localStorageの値を確認
     if (localStorage.getItem("audioMuted") === "true") {
         audio.muted = true;
         muteBtn.textContent = "🔈 ミュート解除";
