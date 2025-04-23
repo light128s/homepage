@@ -40,21 +40,21 @@
 </head>
 <body>
     <header>
-        <h1>ギャラリー</h1>
+        <h1>マイクラサーバーギャラリー</h1>
         <nav>
             <ul>
                 <li><a href="index.html">トップ</a></li>
                 <li><a href="status.html">ステータス</a></li>
                 <li><a href="gallery.html">ギャラリー</a></li>
-
+               
                 <li><a href="submit.html">動画投稿</a></li>
-                <li><a href="todo.html">イベント</a></li>
+                 <li><a href="todo.html">イベント</a></li>
             </ul>
         </nav>
     </header>
 
     <main>
-        <h2>ゲーム動画クリップ</h2>
+        <h2>クリップ</h2>
         <p><a href="submit.html">新しい動画を投稿する</a></p>
         <div class="video-gallery" id="video-gallery">
             <!-- 動画はJSで動的に追加 -->
@@ -63,9 +63,10 @@
 
     <script>
         async function fetchVideos() {
-            const SHEET_ID = '1IMVmbJCQtb82AbKeR_0BiS35zkTNDeytgyLEbYtj-mA'; // スプレッドシートのID
-            const API_KEY = 'AIzaSyCK3jCuAtLoM9v3ajt-LYMdJ8DKfAmDvo8'; // Google APIキー
+            const SHEET_ID = 'YOUR_SHEET_ID'; // スプレッドシートのID
+            const API_KEY = 'YOUR_API_KEY'; // Google APIキー
           const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/フォームの回答 1!A2:D?key=${API_KEY}`;
+
             try {
                 const response = await fetch(url);
                 const data = await response.json();
@@ -74,13 +75,13 @@
                 gallery.innerHTML = '';
                 videos.forEach(([timestamp, title, url, videoId]) => {
                     if (videoId) {
-                        const videoElement = 
+                        const videoElement = `
                             <div class="video-container">
                                 <h3 class="video-title">${title}</h3>
                                 <div class="video-wrapper">
                                     <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen loading="lazy"></iframe>
                                 </div>
-                            </div>;
+                            </div>`;
                         gallery.innerHTML += videoElement;
                     }
                 });
@@ -94,7 +95,7 @@
         fetchVideos();
 
         // 1分ごとに更新（投稿反映用）
-        setInterval(fetchVideos, 30000);
+        setInterval(fetchVideos, 60000);
     </script>
 </body>
 </html>
