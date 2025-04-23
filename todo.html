@@ -11,7 +11,7 @@
         <h1>イベント</h1>
         <nav>
             <ul>
-                 <li><a href="index.html">トップ</a></li>
+                <li><a href="index.html">トップ</a></li>
                 <li><a href="status.html">サーバーステータス</a></li>
                 <li><a href="gallery.html">ギャラリー</a></li>
                 <li><a href="submit.html">動画投稿</a></li>
@@ -37,20 +37,41 @@
     <script>
         const bgm = document.getElementById("bgm");
         const muteBtn = document.getElementById("mute-btn");
-        
-        // 最初の音量を10%に設定（0が無音、1が最大音量）
-        bgm.volume = 0.1; 
-        
-        // 初期状態をlocalStorageから読み込み
-        if (localStorage.getItem("muted") === "true") {
+
+        // 初期音量を10%に設定（0が無音、1が最大音量）
+        const initialVolume = 0.1;
+        bgm.volume = initialVolume;
+
+        // セッションから状態を取得（ミュート状態と再生状態）
+        const isMuted = sessionStorage.getItem("muted") === "true";
+        const isPlaying = sessionStorage.getItem("playing") === "true";
+
+        // ミュートの状態に応じて設定
+        if (isMuted) {
             bgm.muted = true;
             muteBtn.textContent = "🔇 ミュート解除";
+        }
+
+        // 音楽の再生状態に応じて設定
+        if (!isPlaying) {
+            bgm.pause();
+        } else {
+            bgm.play();
         }
 
         muteBtn.addEventListener("click", () => {
             bgm.muted = !bgm.muted;
             muteBtn.textContent = bgm.muted ? "🔇 ミュート解除" : "🔊 ミュート";
-            localStorage.setItem("muted", bgm.muted);
+            sessionStorage.setItem("muted", bgm.muted);
+        });
+
+        // 音楽の再生/停止を管理
+        bgm.addEventListener("play", () => {
+            sessionStorage.setItem("playing", "true");
+        });
+
+        bgm.addEventListener("pause", () => {
+            sessionStorage.setItem("playing", "false");
         });
     </script>
 </body>
