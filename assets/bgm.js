@@ -4,14 +4,19 @@
 let audio = document.getElementById('bgm');
 let muteButton = document.getElementById('mute-btn');
 
-// sessionStorage から音楽の再生状態を取得
+// ページが読み込まれた時に音楽を再生する
 window.onload = function () {
+    // sessionStorage から音楽の再生状態を取得
     if (sessionStorage.getItem('audioMuted') === 'true') {
         audio.muted = true;
         muteButton.textContent = "🔈 ミュート解除";
     } else {
         audio.muted = false;
         muteButton.textContent = "🔊 ミュート";
+        // 音楽を再生する
+        audio.play().catch((error) => {
+            console.log('音楽の再生に失敗しました:', error);
+        });
     }
 };
 
