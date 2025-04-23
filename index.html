@@ -1,61 +1,45 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8">
-    <title>Lightserver ホーム</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lightサーバー ホームページ</title>
+    <link rel="stylesheet" href="assets/style.css">
 </head>
-
 <body>
     <header>
-        <h1>Lightserver</h1>
+        <h1>Lightサーバーへようこそ！</h1>
         <nav>
             <ul>
                 <li><a href="index.html">トップ</a></li>
-      <li><a href="status.html">ステータス</a></li>
-      <li><a href="gallery.html">ギャラリー</a></li>
-      <li><a href="submit.html">動画投稿</a></li>
-      <li><a href="todo.html">イベント</a></li>
+                <li><a href="status.html">サーバーステータス</a></li>
+                <li><a href="gallery.html">ギャラリー</a></li>
+                <li><a href="submit.html">動画投稿</a></li>
+                <li><a href="todo.html">イベント</a></li>
             </ul>
         </nav>
     </header>
 
     <main>
         <section>
-            <h2>ようこそLightserverへ！</h2>
-            <p>このサイトはDiscordサーバー「Lightserver」のホームページです。</p>
-            <p>メンバーの活動やサーバーの状況、面白いアイデアなどをここで共有しています。</p>
+            <h2>サーバー紹介</h2>
+            <p>このサーバーは少人数でゆったりと遊ぶMinecraftサーバーです。</p>
         </section>
 
         <section>
-            <h2>自動BGM</h2>
-            <p>サイトを開くとBGMが流れます。下のプレイヤーで音量調整や停止が可能です。</p>
-            <audio id="bgm" autoplay loop>
-                <source src="bgm.mp3" type="audio/mpeg">
-                BGMを再生できません。
-            </audio>
-            <div>
-                <button onclick="document.getElementById('bgm').play()">再生</button>
-                <button onclick="document.getElementById('bgm').pause()">停止</button>
-            </div>
+            <h2>お知らせ</h2>
+            <p>現在、BGMの自動再生機能をテスト中です。Chromeなど一部ブラウザでは自動再生されないことがあります。</p>
         </section>
     </main>
 
+    <!-- BGM -->
+    <audio autoplay loop>
+        <source src="assets/bgm.mp3" type="audio/mp3">
+        お使いのブラウザでは音声が再生できません。
+    </audio>
+
     <footer>
-        <p>&copy; 2025 Lightserver</p>
+        <p>&copy; 2025 Lightサーバー</p>
     </footer>
-
-    <script>
-        const bgm = document.getElementById('bgm');
-        document.addEventListener('visibilitychange', function () {
-            if (document.hidden) {
-                bgm.pause();
-            } else {
-                bgm.play();
-            }
-        });
-    </script>
 </body>
-
 </html>
