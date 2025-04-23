@@ -111,22 +111,8 @@
         setInterval(fetchVideos, 60000);
     </script>
     
-<audio id="bgm" loop>
-    <source src="assets/bgm.mp3" type="audio/mp3">
-    お使いのブラウザでは音声が再生できません。
-</audio>
+ <iframe src="bgm.html" style="display:none;" width="0" height="0"></iframe>
 
-<!-- ミュートボタン -->
-<button id="mute-btn" style="position: fixed; top: 10px; right: 60px; z-index: 9999;">
-    🔊 ミュート
-</button>
 
-<!-- 再生ボタン（初回用） -->
-<button id="play-btn" style="position: fixed; top: 10px; right: 10px; z-index: 9999;">
-    ▶️ 再生
-</button>
-
-<!-- JavaScriptの読み込み -->
-<script src="assets/bgm.js"></script>
 </body>
 </html>
