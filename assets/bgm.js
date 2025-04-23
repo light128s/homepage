@@ -3,6 +3,7 @@ const muteBtn = document.getElementById('mute-btn');
 const playBtn = document.getElementById('play-btn');
 
 window.onload = () => {
+    audio.volume = 0.2;
     if (localStorage.getItem('audioMuted') === 'true') {
         audio.muted = true;
         muteBtn.textContent = "🔈 ミュート解除";
