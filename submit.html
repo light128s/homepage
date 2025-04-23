@@ -71,22 +71,6 @@
             muteBtn.textContent = bgm.muted ? "🔇 ミュート解除" : "🔊 ミュート";
             sessionStorage.setItem("muted", bgm.muted);
         });
-
-        // ページ読み込み時に音楽の再生状態を維持
-        if (sessionStorage.getItem("playing") === "true") {
-            bgm.play();
-        } else {
-            bgm.pause();
-        }
-
-        // 音楽の再生・停止状態を監視
-        bgm.addEventListener("play", () => {
-            sessionStorage.setItem("playing", "true");
-        });
-
-        bgm.addEventListener("pause", () => {
-            sessionStorage.setItem("playing", "false");
-        });
     </script>
 </body>
 </html>
