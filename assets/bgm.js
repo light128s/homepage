@@ -1,3 +1,5 @@
+console.log("bgm.js 読み込まれたよ！");
+
 const audio = document.getElementById('bgm');
 const muteBtn = document.getElementById('mute-btn');
 const playBtn = document.getElementById('play-btn');
