@@ -60,40 +60,38 @@
         </div>
     </main>
 
-    <script>
-        async function fetchVideos() {
-            const SHEET_ID = '1IMVmbJCQtb82AbKeR_0BiS35zkTNDeytgyLEbYtj-mA'; // スプレッドシートのID
-            const API_KEY = 'AIzaSyCK3jCuAtLoM9v3ajt-LYMdJ8DKfAmDvo8'; // Google APIキー
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A2:D?key=${API_KEY}`;
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                const videos = data.values || [];
-                const gallery = document.getElementById('video-gallery');
-                gallery.innerHTML = '';
-                videos.forEach(([timestamp, title, url, videoId]) => {
-                    if (videoId) {
-                        const videoElement = `
-                            <div class="video-container">
-                                <h3 class="video-title">${title}</h3>
-                                <div class="video-wrapper">
-                                    <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen loading="lazy"></iframe>
-                                </div>
-                            </div>`;
-                        gallery.innerHTML += videoElement;
-                    }
-                });
-            } catch (error) {
-                console.error('動画取得エラー:', error);
-                document.getElementById('video-gallery').innerHTML = '<p>動画を読み込めませんでした。</p>';
-            }
+<script>
+    async function fetchVideos() {
+        const SHEET_ID = '1IMVmbJCQtb82AbKeR_0BiS35zkTNDeytgyLEbYtj-mA';
+        const API_KEY = 'AIzaSyCK3jCuAtLoM9v3ajt-LYMdJ8DKfAmDvo8';
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A2:D?key=${API_KEY}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            const videos = data.values || [];
+            const gallery = document.getElementById('video-gallery');
+            gallery.innerHTML = '';
+            videos.forEach(([timestamp, title, url, videoId]) => {
+                if (videoId) {
+                    const videoElement = `
+                        <div class="video-container">
+                            <h3 class="video-title">${title}</h3>
+                            <div class="video-wrapper">
+                                <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen loading="lazy"></iframe>
+                            </div>
+                        </div>`;
+                    gallery.innerHTML += videoElement;
+                }
+            });
+        } catch (error) {
+            console.error('動画取得エラー:', error);
+            document.getElementById('video-gallery').innerHTML = '<p>動画を読み込めませんでした。</p>';
         }
+    }
 
-        // 初回読み込み
-        fetchVideos();
+    fetchVideos();
+    setInterval(fetchVideos, 30000);
+</script>
 
-        // 1分ごとに更新（投稿反映用）
-        setInterval(fetchVideos, 30000);
-    </script>
 </body>
 </html>
