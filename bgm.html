@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>音楽再生</title>
+    <title>BGM</title>
 </head>
 <body>
     <audio id="bgm" loop>
@@ -22,22 +22,21 @@
         const playBtn = document.getElementById("play-btn");
         const muteBtn = document.getElementById("mute-btn");
 
-        // 音量を 20% に設定
+        // 初期状態で音量設定
         audio.volume = 0.2;
 
-        // 音楽再生ボタンのイベント
-        playBtn.addEventListener("click", () => {
-            audio.play().then(() => {
-                playBtn.style.display = "none"; // 再生後、再生ボタンを非表示にする
-            }).catch(err => {
-                console.log("自動再生に失敗しました", err);
-            });
-        });
-
-        // ミュート/解除ボタンのイベント
+        // ミュートボタンのイベント
         muteBtn.addEventListener("click", () => {
             audio.muted = !audio.muted;
             muteBtn.textContent = audio.muted ? "🔈 ミュート解除" : "🔊 ミュート";
+        });
+
+        // 再生ボタンのイベント
+        playBtn.addEventListener("click", () => {
+            audio.play().catch(err => {
+                console.log("音楽の再生エラー:", err);
+            });
+            playBtn.style.display = "none"; // 再生後はボタンを隠す
         });
     </script>
 </body>
