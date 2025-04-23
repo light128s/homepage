@@ -6,22 +6,35 @@
     <title>音楽再生</title>
 </head>
 <body>
-    <audio id="bgm" loop autoplay>
+    <audio id="bgm" loop>
         <source src="assets/bgm.mp3" type="audio/mp3">
         お使いのブラウザでは音声が再生できません。
     </audio>
+
+    <!-- 再生ボタン -->
+    <button id="play-btn">▶️ 再生</button>
 
     <!-- ミュートボタン -->
     <button id="mute-btn">🔊 ミュート</button>
 
     <script>
         const audio = document.getElementById("bgm");
+        const playBtn = document.getElementById("play-btn");
         const muteBtn = document.getElementById("mute-btn");
 
         // 音量を 20% に設定
-        audio.volume = 0.2;  // 0.0 から 1.0 までの値で音量を設定
+        audio.volume = 0.2;
 
-        // ミュート/解除を切り替える
+        // 音楽再生ボタンのイベント
+        playBtn.addEventListener("click", () => {
+            audio.play().then(() => {
+                playBtn.style.display = "none"; // 再生後、再生ボタンを非表示にする
+            }).catch(err => {
+                console.log("自動再生に失敗しました", err);
+            });
+        });
+
+        // ミュート/解除ボタンのイベント
         muteBtn.addEventListener("click", () => {
             audio.muted = !audio.muted;
             muteBtn.textContent = audio.muted ? "🔈 ミュート解除" : "🔊 ミュート";
