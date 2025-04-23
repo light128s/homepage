@@ -24,7 +24,7 @@
         <h2>作り中です</h2>
     </main>
 
-    <!-- BGM -->
+     <!-- BGM -->
     <audio id="bgm" autoplay loop>
         <source src="assets/bgm.mp3" type="audio/mp3">
         お使いのブラウザでは音声が再生できません。
@@ -37,41 +37,20 @@
     <script>
         const bgm = document.getElementById("bgm");
         const muteBtn = document.getElementById("mute-btn");
-
-        // 初期音量を10%に設定（0が無音、1が最大音量）
-        const initialVolume = 0.1;
-        bgm.volume = initialVolume;
-
-        // セッションから状態を取得（ミュート状態と再生状態）
-        const isMuted = sessionStorage.getItem("muted") === "true";
-        const isPlaying = sessionStorage.getItem("playing") === "true";
-
-        // ミュートの状態に応じて設定
-        if (isMuted) {
+        
+        // 最初の音量を10%に設定（0が無音、1が最大音量）
+        bgm.volume = 0.1; 
+        
+        // 初期状態をsessionStorageから読み込み
+        if (sessionStorage.getItem("muted") === "true") {
             bgm.muted = true;
             muteBtn.textContent = "🔇 ミュート解除";
-        }
-
-        // 音楽の再生状態に応じて設定
-        if (!isPlaying) {
-            bgm.pause();
-        } else {
-            bgm.play();
         }
 
         muteBtn.addEventListener("click", () => {
             bgm.muted = !bgm.muted;
             muteBtn.textContent = bgm.muted ? "🔇 ミュート解除" : "🔊 ミュート";
             sessionStorage.setItem("muted", bgm.muted);
-        });
-
-        // 音楽の再生/停止を管理
-        bgm.addEventListener("play", () => {
-            sessionStorage.setItem("playing", "true");
-        });
-
-        bgm.addEventListener("pause", () => {
-            sessionStorage.setItem("playing", "false");
         });
     </script>
 </body>
