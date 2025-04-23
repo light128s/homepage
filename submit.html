@@ -27,10 +27,10 @@
         <nav>
             <ul>
                 <li><a href="index.html">トップ</a></li>
-                <li><a href="status.html">ステータス</a></li>
+                <li><a href="status.html">サーバーステータス</a></li>
                 <li><a href="gallery.html">ギャラリー</a></li>
-                <li><a href="todo.html">やりがたいこと</a></li>
                 <li><a href="submit.html">動画投稿</a></li>
+                <li><a href="todo.html">イベント</a></li>
             </ul>
         </nav>
     </header>
@@ -42,5 +42,35 @@
             <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdmd0weMO0ci2es-MedlKcBCnVHnwG-WerKOT03dEjMfGR47w/viewform?embedded=true" frameborder="0">読み込み中…</iframe>
         </div>
     </main>
+
+    <!-- BGM -->
+    <audio id="bgm" autoplay loop>
+        <source src="assets/bgm.mp3" type="audio/mp3">
+        お使いのブラウザでは音声が再生できません。
+    </audio>
+
+    <button id="mute-btn" style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 5px 10px; cursor: pointer;">
+        🔊 ミュート
+    </button>
+
+    <script>
+        const bgm = document.getElementById("bgm");
+        const muteBtn = document.getElementById("mute-btn");
+        
+        // 最初の音量を10%に設定（0が無音、1が最大音量）
+        bgm.volume = 0.1; 
+        
+        // 初期状態をlocalStorageから読み込み
+        if (localStorage.getItem("muted") === "true") {
+            bgm.muted = true;
+            muteBtn.textContent = "🔇 ミュート解除";
+        }
+
+        muteBtn.addEventListener("click", () => {
+            bgm.muted = !bgm.muted;
+            muteBtn.textContent = bgm.muted ? "🔇 ミュート解除" : "🔊 ミュート";
+            localStorage.setItem("muted", bgm.muted);
+        });
+    </script>
 </body>
 </html>
