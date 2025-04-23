@@ -15,9 +15,9 @@ if (sessionStorage.getItem("muted") === "true") {
 
 // ページ遷移時にBGMが再生されるかどうかの確認
 if (sessionStorage.getItem("bgmPlaying") === "true") {
-    bgm.play();
+    bgm.play();  // 明示的に再生する
 } else {
-    bgm.pause();
+    bgm.pause();  // 再生しない
 }
 
 // ミュートボタンのクリックイベント
@@ -27,7 +27,7 @@ muteBtn.addEventListener("click", () => {
     sessionStorage.setItem("muted", bgm.muted);
 });
 
-// ページを離れる際にBGMの再生状態を保存
+// BGMの再生状態をセッションストレージに保存
 window.addEventListener('beforeunload', () => {
     sessionStorage.setItem("bgmPlaying", !bgm.paused);
 });
