@@ -3,50 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>サーバーステータス - Lightサーバー</title>
-    <link rel="stylesheet" href="assets/style.css">
+    <title>音楽再生</title>
 </head>
 <body>
-    <header>
-        <h1>マイクラサーバーステータス</h1>
-        <nav>
-            <ul>
-                <li><a href="index.html">トップ</a></li>
-                <li><a href="status.html">サーバーステータス</a></li>
-                <li><a href="gallery.html">ギャラリー</a></li>
-                <li><a href="submit.html">動画投稿</a></li>
-                <li><a href="todo.html">イベント</a></li>
-            </ul>
-        </nav>
-    </header>
+    <audio id="bgm" loop autoplay>
+        <source src="assets/bgm.mp3" type="audio/mp3">
+        お使いのブラウザでは音声が再生できません。
+    </audio>
 
-    <main>
-        <h2>サーバー情報</h2>
-        <p>アドレス: 162.43.87.233</p>
-        <p>ステータス: <span id="server-status">読み込み中...</span></p>
-    </main>
-
-    <!-- 音楽を再生するためのiframe -->
-    <iframe src="bgm.html" style="display:none;" width="0" height="0"></iframe>
+    <!-- ミュートボタン -->
+    <button id="mute-btn">🔊 ミュート</button>
 
     <script>
-        // サーバーステータスの取得
-        fetch("https://mcapi.us/server/status?ip=162.43.87.233")
-            .then(res => res.json())
-            .then(data => {
-                if (data.online) {
-                    document.getElementById("server-status").textContent = "オンライン";
-                } else {
-                    document.getElementById("server-status").textContent = "オフライン";
-                }
-            })
-            .catch(() => {
-                document.getElementById("server-status").textContent = "ステータス取得失敗";
-            });
-    </script>
+        const audio = document.getElementById("bgm");
+        const muteBtn = document.getElementById("mute-btn");
 
-    <footer>
-        <p>&copy; 2025 Lightサーバー</p>
-    </footer>
+        // 音量を 20% に設定
+        audio.volume = 0.2;  // 0.0 から 1.0 までの値で音量を設定
+
+        // ミュート/解除を切り替える
+        muteBtn.addEventListener("click", () => {
+            audio.muted = !audio.muted;
+            muteBtn.textContent = audio.muted ? "🔈 ミュート解除" : "🔊 ミュート";
+        });
+    </script>
 </body>
 </html>
