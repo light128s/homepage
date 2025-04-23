@@ -64,7 +64,7 @@
     async function fetchVideos() {
         const SHEET_ID = '1IMVmbJCQtb82AbKeR_0BiS35zkTNDeytgyLEbYtj-mA';
         const API_KEY = 'AIzaSyCK3jCuAtLoM9v3ajt-LYMdJ8DKfAmDvo8';
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Form_Responses1!A2:D?key=${API_KEY}`;
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/フォームの回答 1!A2:D?key=${API_KEY}`;
         try {
             const response = await fetch(url);
             const data = await response.json();
