@@ -1,79 +1,234 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lightサーバー - ギャラリー</title>
-  <link rel="stylesheet" href="assets/style.css" />
-  <script src="assets/bgm.js" defer></script>
-</head>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    .video-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+    .video-container {
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+    .video-title {
+      margin: 0 0 10px;
+      font-size: 1.2em;
+      color: #333;
+    }
+    .video-wrapper {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+    }
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      border-radius: 5px;
+    }
+    .loading {
+      text-align: center;
+      font-size: 1.2em;
+      padding: 20px;
+    }
+    .error-message {
+      color: red;
+      font-size: 1.2em;
+      text-align: center;
+      padding: 20px;
+    }
+    .sort-buttons {
+      text-align: center;
+      margin: 20px;
+    }
+    .sort-buttons button {
+      padding: 10px 20px;
+      font-size: 1em;
+      margin: 0 10px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f0f0f0;
+    }
 
+    /* BGMコントロール */
+    .bgm-controls {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.9);
+      padding: 10px 15px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+    }
+    .bgm-controls button {
+      padding: 5px 10px;
+    }
+    .bgm-controls input[type="range"] {
+      width: 100px;
+    }
+  </style>
+</head>
 <body>
-  <nav>
-    <ul>
-      <li><a href="index.html">トップ</a></li>
-      <li><a href="status.html">ステータス</a></li>
-      <li><a href="gallery.html">ギャラリー</a></li>
-      <li><a href="submit.html">動画投稿</a></li>
-      <li><a href="todo.html">イベント</a></li>
-    </ul>
-  </nav>
+  <header>
+    <h1>ギャラリー</h1>
+    <nav>
+      <ul>
+        <li><a href="index.html">トップ</a></li>
+        <li><a href="status.html">ステータス</a></li>
+        <li><a href="gallery.html">ギャラリー</a></li>
+        <li><a href="todo.html">やりがたいこと</a></li>
+        <li><a href="submit.html">動画投稿</a></li>
+      </ul>
+    </nav>
+  </header>
 
   <main>
-    <h1>クリップ集</h1>
-    <div id="video-gallery" class="gallery"></div>
-    <button id="load-more">もっと見る</button>
+    <h2>ゲーム動画クリップ</h2>
+    <p><a href="submit.html">新しい動画を投稿する</a></p>
+    <div class="sort-buttons">
+      <button id="sort-latest">最新順</button>
+      <button id="sort-oldest">最古順</button>
+    </div>
+    <div class="loading" id="loading">動画を読み込んでいます...</div>
+    <div class="video-gallery" id="video-gallery"></div>
+    <div class="loading" id="loading-more" style="display:none; text-align:center;">さらに読み込む...</div>
   </main>
 
-  <footer>
-    <audio id="bgm" autoplay loop>
-      <source src="assets/bgm.mp3" type="audio/mpeg">
-    </audio>
-    <div class="bgm-controls">
-      <button id="mute-btn">ミュート</button>
-    </div>
-  </footer>
+  <!-- 🎵 BGMプレイヤー -->
+  <audio id="bgm" src="assets/bgm.mp3" autoplay loop></audio>
+  <div class="bgm-controls">
+    <button id="bgm-toggle">🔊 ON</button>
+    <input id="bgm-volume" type="range" min="0" max="1" step="0.01" value="1">
+  </div>
 
   <script>
-    const sheetId = "1SDi3pbOoArC9znJoYF0tL2sBHZ9p7Hw9aRErFgGbRPo";
-    const apiKey = "AIzaSyDxuR5ex2opZcvGCLb9zC4WjKRL7mD7SnQ";
-    const range = "Videos!A2:A";
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+    // BGM 状態管理
+    const bgm = document.getElementById("bgm");
+    const toggleBtn = document.getElementById("bgm-toggle");
+    const volumeSlider = document.getElementById("bgm-volume");
 
+    window.addEventListener("load", () => {
+      const savedTime = sessionStorage.getItem("bgm-time");
+      const savedPaused = sessionStorage.getItem("bgm-paused");
+      const savedVolume = sessionStorage.getItem("bgm-volume");
+
+      if (savedTime) bgm.currentTime = parseFloat(savedTime);
+      if (savedVolume) {
+        bgm.volume = parseFloat(savedVolume);
+        volumeSlider.value = savedVolume;
+      }
+
+      if (savedPaused === "true") {
+        bgm.pause();
+        toggleBtn.textContent = "🔇 OFF";
+      } else {
+        bgm.play().catch(() => {});
+        toggleBtn.textContent = "🔊 ON";
+      }
+    });
+
+    // 状態を1秒ごとに保存
+    setInterval(() => {
+      sessionStorage.setItem("bgm-time", bgm.currentTime);
+      sessionStorage.setItem("bgm-paused", bgm.paused);
+      sessionStorage.setItem("bgm-volume", bgm.volume);
+    }, 1000);
+
+    toggleBtn.addEventListener("click", () => {
+      if (bgm.paused) {
+        bgm.play();
+        toggleBtn.textContent = "🔊 ON";
+      } else {
+        bgm.pause();
+        toggleBtn.textContent = "🔇 OFF";
+      }
+    });
+
+    volumeSlider.addEventListener("input", () => {
+      bgm.volume = volumeSlider.value;
+    });
+
+    // 🎥 動画表示処理（そのまま）
+    let nextPageToken = 0;
     const videosPerPage = 5;
     let videosData = [];
-    let nextPageToken = 0;
 
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        if (data.values) {
-          videosData = data.values.map(row => row[0]);
-          displayVideos(videosData.slice(0, videosPerPage));
-          nextPageToken = videosPerPage;
-        }
-      });
+    async function fetchVideos() {
+      const SHEET_ID = '1IMVmbJCQtb82AbKeR_0BiS35zkTNDeytgyLEbYtj-mA';
+      const API_KEY = 'AIzaSyCK3jCuAtLoM9v3ajt-LYMdJ8DKfAmDvo8';
+      const url = https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/フォームの回答 1!A2:D?key=${API_KEY};
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        videosData = data.values || [];
+        document.getElementById('loading').style.display = 'none';
+        displayVideos(videosData.slice(nextPageToken, nextPageToken + videosPerPage));
+        nextPageToken += videosPerPage;
+        document.getElementById('loading-more').style.display = 'block';
+      } catch (error) {
+        console.error('動画取得エラー:', error);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('video-gallery').innerHTML = '<p class="error-message">動画を読み込めませんでした。</p>';
+      }
+    }
 
     function displayVideos(videos) {
-      const gallery = document.getElementById("video-gallery");
-      videos.forEach(videoUrl => {
-        const iframe = document.createElement("iframe");
-        iframe.src = videoUrl;
-        iframe.allowFullscreen = true;
-        iframe.width = "560";
-        iframe.height = "315";
-        iframe.classList.add("video-frame");
-        gallery.appendChild(iframe);
+      const gallery = document.getElementById('video-gallery');
+      gallery.innerHTML = '';
+      videos.forEach(([timestamp, title, url, videoId]) => {
+        if (videoId) {
+          const videoElement = 
+            <div class="video-container">
+              <h3 class="video-title">${title}</h3>
+              <div class="video-wrapper">
+                <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen loading="lazy"></iframe>
+              </div>
+            </div>;
+          gallery.innerHTML += videoElement;
+        }
       });
     }
 
-    document.getElementById("load-more").addEventListener("click", () => {
-      const nextVideos = videosData.slice(nextPageToken, nextPageToken + videosPerPage);
-      displayVideos(nextVideos);
+    window.onscroll = () => {
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 200) {
+        document.getElementById('loading-more').innerHTML = '動画を読み込んでいます...';
+        displayVideos(videosData.slice(nextPageToken, nextPageToken + videosPerPage));
+        nextPageToken += videosPerPage;
+      }
+    };
+
+    document.getElementById('sort-latest').addEventListener('click', () => {
+      const sortedVideos = [...videosData].sort((a, b) => new Date(b[0]) - new Date(a[0]));
+      nextPageToken = 0;
+      displayVideos(sortedVideos.slice(nextPageToken, nextPageToken + videosPerPage));
       nextPageToken += videosPerPage;
     });
+
+    document.getElementById('sort-oldest').addEventListener('click', () => {
+      const sortedVideos = [...videosData].sort((a, b) => new Date(a[0]) - new Date(b[0]));
+      nextPageToken = 0;
+      displayVideos(sortedVideos.slice(nextPageToken, nextPageToken + videosPerPage));
+      nextPageToken += videosPerPage;
+    });
+
+    fetchVideos();
   </script>
 </body>
-
 </html>
