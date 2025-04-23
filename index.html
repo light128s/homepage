@@ -1,40 +1,21 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lightサーバー ホームページ</title>
-    <link rel="stylesheet" href="assets/style.css">
-    <style>
-        /* ボタンを中央に配置 */
-        #mute-btn {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 9999;
-            background: #fff;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 10px 15px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        /* ボタンのホバー時のエフェクト */
-        #mute-btn:hover {
-            background-color: #e0e0e0;
-        }
-    </style>
+    <title>Lightserver ホーム</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <header>
-        <h1>Lightサーバーへようこそ！</h1>
+        <h1>Lightserver</h1>
         <nav>
             <ul>
-                <li><a href="index.html">トップ</a></li>
-                <li><a href="status.html">サーバーステータス</a></li>
-                <li><a href="gallery.html">ギャラリー</a></li>
-                <li><a href="submit.html">動画投稿</a></li>
+                  <li><a href="index.html">ホーム</a></li>
+                <li><a href="status.html">サーバー情報</a></li>
+                <li><a href="gallery.html">クリップ</a></li>
+                <li><a href="submit.html">クリップ投稿</a></li>
                 <li><a href="todo.html">イベント</a></li>
             </ul>
         </nav>
@@ -42,51 +23,39 @@
 
     <main>
         <section>
-            <h2>サーバー紹介</h2>
-            <p>このサーバーは少人数でゆったりと遊ぶMinecraftサーバーです。</p>
+            <h2>ようこそLightserverへ！</h2>
+            <p>このサイトはDiscordサーバー「Lightserver」のホームページです。</p>
+            <p>メンバーの活動やサーバーの状況、面白いアイデアなどをここで共有しています。</p>
         </section>
 
         <section>
-            <h2>お知らせ</h2>
-            <p>現在、BGMの自動再生機能をテスト中です。Chromeなど一部ブラウザでは自動再生されないことがあります。</p>
+            <h2>自動BGM</h2>
+            <p>サイトを開くとBGMが流れます。下のプレイヤーで音量調整や停止が可能です。</p>
+            <audio id="bgm" autoplay loop>
+                <source src="bgm.mp3" type="audio/mpeg">
+                BGMを再生できません。
+            </audio>
+            <div>
+                <button onclick="document.getElementById('bgm').play()">再生</button>
+                <button onclick="document.getElementById('bgm').pause()">停止</button>
+            </div>
         </section>
     </main>
 
-    <!-- BGM -->
-    <audio id="bgm" loop>
-        <source src="assets/bgm.mp3" type="audio/mp3">
-        お使いのブラウザでは音声が再生できません。
-    </audio>
-
-    <!-- ミュートボタン -->
-    <button id="mute-btn">
-        🔊 ミュート
-    </button>
-
     <footer>
-        <p>&copy; 2025 Lightサーバー</p>
+        <p>&copy; 2025 Lightserver</p>
     </footer>
 
     <script>
-        const bgm = document.getElementById("bgm");
-        const muteBtn = document.getElementById("mute-btn");
-
-        // 最初の音量を10%に設定
-        bgm.volume = 0.1;
-
-        // ミュート機能を最初に設定
-        if (sessionStorage.getItem("muted") === "true") {
-            bgm.muted = true;
-            muteBtn.textContent = "🔇 ミュート解除";
-        } else {
-            // ユーザーがクリックしてからBGMを再生
-            muteBtn.addEventListener("click", () => {
-                bgm.play(); // ユーザーがクリックしたときに再生を開始
-                bgm.muted = !bgm.muted;
-                muteBtn.textContent = bgm.muted ? "🔇 ミュート解除" : "🔊 ミュート";
-                sessionStorage.setItem("muted", bgm.muted);
-            });
-        }
+        const bgm = document.getElementById('bgm');
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+                bgm.pause();
+            } else {
+                bgm.play();
+            }
+        });
     </script>
 </body>
+
 </html>
