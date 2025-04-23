@@ -1,75 +1,41 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>サーバーステータス - Lightサーバー</title>
-    <link rel="stylesheet" href="assets/style.css">
+  <meta charset="UTF-8">
+  <title>サーバーステータス - Lightserver</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>マイクラサーバーステータス</h1>
-        <nav>
-            <ul>
-                <li><a href="index.html">トップ</a></li>
-                <li><a href="status.html">サーバーステータス</a></li>
-                <li><a href="gallery.html">ギャラリー</a></li>
-                <li><a href="submit.html">動画投稿</a></li>
-                <li><a href="todo.html">イベント</a></li>
-            </ul>
-        </nav>
-    </header>
+  <div id="bgm-control"></div>
+  <header>
+    <h1>Lightserver</h1>
+    <nav>
+      <ul>
+       <li><a href="index.html">トップ</a></li>
+      <li><a href="status.html">ステータス</a></li>
+      <li><a href="gallery.html">ギャラリー</a></li>
+      <li><a href="submit.html">動画投稿</a></li>
+      <li><a href="todo.html">イベント</a></li>
+      </ul>
+    </nav>
+  </header>
 
-    <main>
-        <h2>サーバー情報</h2>
-        <p>アドレス: 162.43.87.233</p>
-        <p>ステータス: <span id="server-status">読み込み中...</span></p>
-    </main>
+  <main>
+    <section>
+      <h2>Minecraftサーバーのステータス</h2>
+      <p>サーバー稼働状況：<span id="server-status">取得中...</span></p>
+      <p>使用MOD一覧：</p>
+      <ul>
+        <li>例: OptiFine</li>
+        <li>例: JourneyMap</li>
+      </ul>
+    </section>
+  </main>
 
-    <!-- BGM -->
-    <audio id="bgm" autoplay loop>
-        <source src="assets/bgm.mp3" type="audio/mp3">
-        お使いのブラウザでは音声が再生できません。
-    </audio>
+  <footer>
+    <p>© Lightserver</p>
+  </footer>
 
-    <button id="mute-btn" style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 5px 10px; cursor: pointer;">
-        🔊 ミュート
-    </button>
-
-    <script>
-        const bgm = document.getElementById("bgm");
-        const muteBtn = document.getElementById("mute-btn");
-        
-        // 最初の音量を10%に設定（0が無音、1が最大音量）
-        bgm.volume = 0.1; 
-        
-        // 初期状態をsessionStorageから読み込み
-        if (sessionStorage.getItem("muted") === "true") {
-            bgm.muted = true;
-            muteBtn.textContent = "🔇 ミュート解除";
-        }
-
-        muteBtn.addEventListener("click", () => {
-            bgm.muted = !bgm.muted;
-            muteBtn.textContent = bgm.muted ? "🔇 ミュート解除" : "🔊 ミュート";
-            sessionStorage.setItem("muted", bgm.muted);
-        });
-    </script>
-
-    <script>
-        // サーバーステータスの取得
-        fetch("https://mcapi.us/server/status?ip=162.43.87.233")
-            .then(res => res.json())
-            .then(data => {
-                if (data.online) {
-                    document.getElementById("server-status").textContent = "オンライン";
-                } else {
-                    document.getElementById("server-status").textContent = "オフライン";
-                }
-            })
-            .catch(() => {
-                document.getElementById("server-status").textContent = "ステータス取得失敗";
-            });
-    </script>
+  <script src="bgm.js"></script>
 </body>
 </html>
