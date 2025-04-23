@@ -33,10 +33,15 @@
     </main>
 
     <!-- BGM -->
-   <audio id="bgm" autoplay loop>
+  <audio id="bgm" autoplay loop>
     <source src="assets/bgm.mp3" type="audio/mp3">
     お使いのブラウザでは音声が再生できません。
 </audio>
+
+<script>
+    const bgm = document.getElementById("bgm");
+    bgm.volume = 0.1; // 最初の音量を10%に設定（0が無音、1が最大音量）
+</script>
 <button id="mute-btn" style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 5px 10px; cursor: pointer;">
     🔊 ミュート
 </button>
