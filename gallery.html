@@ -1,172 +1,234 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lightサーバー - ギャラリー</title>
-    <link rel="stylesheet" href="assets/style.css">
-    <style>
-        .video-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            padding: 20px;
-        }
-        .video-container {
-            border: 1px solid #ccc;
-            padding: 10px;
-            border-radius: 5px;
-            background: #f9f9f9;
-        }
-        .video-title {
-            margin: 0 0 10px;
-            font-size: 1.2em;
-            color: #333;
-        }
-        .video-wrapper {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 */
-            height: 0;
-            overflow: hidden;
-        }
-        .video-wrapper iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            max-width: 100%;
-            border-radius: 5px;
-        }
-        .loading {
-            text-align: center;
-            font-size: 1.2em;
-            padding: 20px;
-        }
-        .error-message {
-            color: red;
-            font-size: 1.2em;
-            text-align: center;
-            padding: 20px;
-        }
-        .sort-buttons {
-            text-align: center;
-            margin: 20px;
-        }
-        .sort-buttons button {
-            padding: 10px 20px;
-            font-size: 1em;
-            margin: 0 10px;
-            cursor: pointer;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #f0f0f0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lightサーバー - ギャラリー</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    .video-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+    .video-container {
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+    .video-title {
+      margin: 0 0 10px;
+      font-size: 1.2em;
+      color: #333;
+    }
+    .video-wrapper {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+    }
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      border-radius: 5px;
+    }
+    .loading {
+      text-align: center;
+      font-size: 1.2em;
+      padding: 20px;
+    }
+    .error-message {
+      color: red;
+      font-size: 1.2em;
+      text-align: center;
+      padding: 20px;
+    }
+    .sort-buttons {
+      text-align: center;
+      margin: 20px;
+    }
+    .sort-buttons button {
+      padding: 10px 20px;
+      font-size: 1em;
+      margin: 0 10px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f0f0f0;
+    }
+
+    /* BGMコントロール */
+    .bgm-controls {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.9);
+      padding: 10px 15px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+    }
+    .bgm-controls button {
+      padding: 5px 10px;
+    }
+    .bgm-controls input[type="range"] {
+      width: 100px;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>ギャラリー</h1>
-        <nav>
-            <ul>
-                <li><a href="index.html">トップ</a></li>
-                <li><a href="status.html">ステータス</a></li>
-                <li><a href="gallery.html">ギャラリー</a></li>
-                <li><a href="todo.html">やりがたいこと</a></li>
-                <li><a href="submit.html">動画投稿</a></li>
-            </ul>
-        </nav>
-    </header>
+  <header>
+    <h1>ギャラリー</h1>
+    <nav>
+      <ul>
+        <li><a href="index.html">トップ</a></li>
+        <li><a href="status.html">ステータス</a></li>
+        <li><a href="gallery.html">ギャラリー</a></li>
+        <li><a href="todo.html">やりがたいこと</a></li>
+        <li><a href="submit.html">動画投稿</a></li>
+      </ul>
+    </nav>
+  </header>
 
-    <main>
-        <h2>ゲーム動画クリップ</h2>
-        <p><a href="submit.html">新しい動画を投稿する</a></p>
-        <div class="sort-buttons">
-            <button id="sort-latest">最新順</button>
-            <button id="sort-oldest">最古順</button>
-        </div>
-        <div class="loading" id="loading">動画を読み込んでいます...</div>
-        <div class="video-gallery" id="video-gallery">
-            <!-- 動画はJSで動的に追加 -->
-        </div>
-        <div class="loading" id="loading-more" style="display:none; text-align:center;">さらに読み込む...</div>
-    </main>
+  <main>
+    <h2>ゲーム動画クリップ</h2>
+    <p><a href="submit.html">新しい動画を投稿する</a></p>
+    <div class="sort-buttons">
+      <button id="sort-latest">最新順</button>
+      <button id="sort-oldest">最古順</button>
+    </div>
+    <div class="loading" id="loading">動画を読み込んでいます...</div>
+    <div class="video-gallery" id="video-gallery"></div>
+    <div class="loading" id="loading-more" style="display:none; text-align:center;">さらに読み込む...</div>
+  </main>
 
-<script>
+  <!-- 🎵 BGMプレイヤー -->
+  <audio id="bgm" src="assets/bgm.mp3" autoplay loop></audio>
+  <div class="bgm-controls">
+    <button id="bgm-toggle">🔊 ON</button>
+    <input id="bgm-volume" type="range" min="0" max="1" step="0.01" value="1">
+  </div>
+
+  <script>
+    // BGM 状態管理
+    const bgm = document.getElementById("bgm");
+    const toggleBtn = document.getElementById("bgm-toggle");
+    const volumeSlider = document.getElementById("bgm-volume");
+
+    window.addEventListener("load", () => {
+      const savedTime = sessionStorage.getItem("bgm-time");
+      const savedPaused = sessionStorage.getItem("bgm-paused");
+      const savedVolume = sessionStorage.getItem("bgm-volume");
+
+      if (savedTime) bgm.currentTime = parseFloat(savedTime);
+      if (savedVolume) {
+        bgm.volume = parseFloat(savedVolume);
+        volumeSlider.value = savedVolume;
+      }
+
+      if (savedPaused === "true") {
+        bgm.pause();
+        toggleBtn.textContent = "🔇 OFF";
+      } else {
+        bgm.play().catch(() => {});
+        toggleBtn.textContent = "🔊 ON";
+      }
+    });
+
+    // 状態を1秒ごとに保存
+    setInterval(() => {
+      sessionStorage.setItem("bgm-time", bgm.currentTime);
+      sessionStorage.setItem("bgm-paused", bgm.paused);
+      sessionStorage.setItem("bgm-volume", bgm.volume);
+    }, 1000);
+
+    toggleBtn.addEventListener("click", () => {
+      if (bgm.paused) {
+        bgm.play();
+        toggleBtn.textContent = "🔊 ON";
+      } else {
+        bgm.pause();
+        toggleBtn.textContent = "🔇 OFF";
+      }
+    });
+
+    volumeSlider.addEventListener("input", () => {
+      bgm.volume = volumeSlider.value;
+    });
+
+    // 🎥 動画表示処理（そのまま）
     let nextPageToken = 0;
     const videosPerPage = 5;
     let videosData = [];
 
     async function fetchVideos() {
-        const SHEET_ID = '1IMVmbJCQtb82AbKeR_0BiS35zkTNDeytgyLEbYtj-mA';
-        const API_KEY = 'AIzaSyCK3jCuAtLoM9v3ajt-LYMdJ8DKfAmDvo8';  // サーバーサイドで管理すべき
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/フォームの回答 1!A2:D?key=${API_KEY}`;
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-            const videos = data.values || [];
-            videosData = videos;  // 取得した動画データを保存
-            const gallery = document.getElementById('video-gallery');
-            const loadingMessage = document.getElementById('loading');
-            const loadingMoreMessage = document.getElementById('loading-more');
-
-            loadingMessage.style.display = 'none'; // ローディングメッセージ非表示
-
-            // 最初に動画を表示
-            displayVideos(videosData.slice(nextPageToken, nextPageToken + videosPerPage));
-            nextPageToken += videosPerPage; // 次のページに進む
-            loadingMoreMessage.style.display = 'block'; // 次の動画を読み込むメッセージを表示
-
-        } catch (error) {
-            console.error('動画取得エラー:', error);
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('video-gallery').innerHTML = '<p class="error-message">動画を読み込めませんでした。後で再試行してください。</p>';
-        }
+      const SHEET_ID = '1IMVmbJCQtb82AbKeR_0BiS35zkTNDeytgyLEbYtj-mA';
+      const API_KEY = 'AIzaSyCK3jCuAtLoM9v3ajt-LYMdJ8DKfAmDvo8';
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/フォームの回答 1!A2:D?key=${API_KEY}`;
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        videosData = data.values || [];
+        document.getElementById('loading').style.display = 'none';
+        displayVideos(videosData.slice(nextPageToken, nextPageToken + videosPerPage));
+        nextPageToken += videosPerPage;
+        document.getElementById('loading-more').style.display = 'block';
+      } catch (error) {
+        console.error('動画取得エラー:', error);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('video-gallery').innerHTML = '<p class="error-message">動画を読み込めませんでした。</p>';
+      }
     }
 
     function displayVideos(videos) {
-        const gallery = document.getElementById('video-gallery');
-        gallery.innerHTML = '';
-        videos.forEach(([timestamp, title, url, videoId]) => {
-            if (videoId) {
-                const videoElement = `
-                    <div class="video-container">
-                        <h3 class="video-title">${title}</h3>
-                        <div class="video-wrapper">
-                            <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen loading="lazy"></iframe>
-                        </div>
-                    </div>`;
-                gallery.innerHTML += videoElement;
-            }
-        });
-    }
-
-    // スクロールイベントで無限スクロール
-    window.onscroll = () => {
-        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 200) {
-            document.getElementById('loading-more').innerHTML = '動画を読み込んでいます...';
-            displayVideos(videosData.slice(nextPageToken, nextPageToken + videosPerPage));
-            nextPageToken += videosPerPage; // 次のページに進む
+      const gallery = document.getElementById('video-gallery');
+      gallery.innerHTML = '';
+      videos.forEach(([timestamp, title, url, videoId]) => {
+        if (videoId) {
+          const videoElement = `
+            <div class="video-container">
+              <h3 class="video-title">${title}</h3>
+              <div class="video-wrapper">
+                <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen loading="lazy"></iframe>
+              </div>
+            </div>`;
+          gallery.innerHTML += videoElement;
         }
+      });
     }
 
-    // 並べ替えボタンのイベント
-    document.getElementById('sort-latest').addEventListener('click', () => {
-        const sortedVideos = [...videosData].sort((a, b) => new Date(b[0]) - new Date(a[0]));  // 最新順に並べ替え
-        nextPageToken = 0;  // ページをリセット
-        displayVideos(sortedVideos.slice(nextPageToken, nextPageToken + videosPerPage));
+    window.onscroll = () => {
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 200) {
+        document.getElementById('loading-more').innerHTML = '動画を読み込んでいます...';
+        displayVideos(videosData.slice(nextPageToken, nextPageToken + videosPerPage));
         nextPageToken += videosPerPage;
+      }
+    };
+
+    document.getElementById('sort-latest').addEventListener('click', () => {
+      const sortedVideos = [...videosData].sort((a, b) => new Date(b[0]) - new Date(a[0]));
+      nextPageToken = 0;
+      displayVideos(sortedVideos.slice(nextPageToken, nextPageToken + videosPerPage));
+      nextPageToken += videosPerPage;
     });
 
     document.getElementById('sort-oldest').addEventListener('click', () => {
-        const sortedVideos = [...videosData].sort((a, b) => new Date(a[0]) - new Date(b[0]));  // 最古順に並べ替え
-        nextPageToken = 0;  // ページをリセット
-        displayVideos(sortedVideos.slice(nextPageToken, nextPageToken + videosPerPage));
-        nextPageToken += videosPerPage;
+      const sortedVideos = [...videosData].sort((a, b) => new Date(a[0]) - new Date(b[0]));
+      nextPageToken = 0;
+      displayVideos(sortedVideos.slice(nextPageToken, nextPageToken + videosPerPage));
+      nextPageToken += videosPerPage;
     });
 
-    fetchVideos();  // 最初に読み込む
-</script>
-
+    fetchVideos();
+  </script>
 </body>
 </html>
