@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lightサーバー - ギャラリー</title> <!-- タブのタイトルをここで変更 -->
+    <title>Lightサーバー - ギャラリー</title>
     <link rel="stylesheet" href="assets/style.css">
     <style>
         .video-gallery {
@@ -35,6 +35,32 @@
             left: 0;
             width: 100%;
             height: 100%;
+            max-width: 100%;
+            border-radius: 5px;
+        }
+        .loading {
+            text-align: center;
+            font-size: 1.2em;
+            padding: 20px;
+        }
+        .error-message {
+            color: red;
+            font-size: 1.2em;
+            text-align: center;
+            padding: 20px;
+        }
+        .sort-buttons {
+            text-align: center;
+            margin: 20px;
+        }
+        .sort-buttons button {
+            padding: 10px 20px;
+            font-size: 1em;
+            margin: 0 10px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f0f0f0;
         }
     </style>
 </head>
@@ -55,42 +81,91 @@
     <main>
         <h2>ゲーム動画クリップ</h2>
         <p><a href="submit.html">新しい動画を投稿する</a></p>
+        <div class="sort-buttons">
+            <button id="sort-latest">最新順</button>
+            <button id="sort-oldest">最古順</button>
+        </div>
+        <div class="loading" id="loading">動画を読み込んでいます...</div>
         <div class="video-gallery" id="video-gallery">
             <!-- 動画はJSで動的に追加 -->
         </div>
+        <div class="loading" id="loading-more" style="display:none; text-align:center;">さらに読み込む...</div>
     </main>
 
 <script>
+    let nextPageToken = 0;
+    const videosPerPage = 5;
+    let videosData = [];
+
     async function fetchVideos() {
         const SHEET_ID = '1IMVmbJCQtb82AbKeR_0BiS35zkTNDeytgyLEbYtj-mA';
-        const API_KEY = 'AIzaSyCK3jCuAtLoM9v3ajt-LYMdJ8DKfAmDvo8';
+        const API_KEY = 'AIzaSyCK3jCuAtLoM9v3ajt-LYMdJ8DKfAmDvo8';  // サーバーサイドで管理すべき
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/フォームの回答 1!A2:D?key=${API_KEY}`;
         try {
             const response = await fetch(url);
             const data = await response.json();
             const videos = data.values || [];
+            videosData = videos;  // 取得した動画データを保存
             const gallery = document.getElementById('video-gallery');
-            gallery.innerHTML = '';
-            videos.forEach(([timestamp, title, url, videoId]) => {
-                if (videoId) {
-                    const videoElement = `
-                        <div class="video-container">
-                            <h3 class="video-title">${title}</h3>
-                            <div class="video-wrapper">
-                                <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen loading="lazy"></iframe>
-                            </div>
-                        </div>`;
-                    gallery.innerHTML += videoElement;
-                }
-            });
+            const loadingMessage = document.getElementById('loading');
+            const loadingMoreMessage = document.getElementById('loading-more');
+
+            loadingMessage.style.display = 'none'; // ローディングメッセージ非表示
+
+            // 最初に動画を表示
+            displayVideos(videosData.slice(nextPageToken, nextPageToken + videosPerPage));
+            nextPageToken += videosPerPage; // 次のページに進む
+            loadingMoreMessage.style.display = 'block'; // 次の動画を読み込むメッセージを表示
+
         } catch (error) {
             console.error('動画取得エラー:', error);
-            document.getElementById('video-gallery').innerHTML = '<p>動画を読み込めませんでした。</p>';
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('video-gallery').innerHTML = '<p class="error-message">動画を読み込めませんでした。後で再試行してください。</p>';
         }
     }
 
-    fetchVideos();
-    setInterval(fetchVideos, 30000);
+    function displayVideos(videos) {
+        const gallery = document.getElementById('video-gallery');
+        gallery.innerHTML = '';
+        videos.forEach(([timestamp, title, url, videoId]) => {
+            if (videoId) {
+                const videoElement = `
+                    <div class="video-container">
+                        <h3 class="video-title">${title}</h3>
+                        <div class="video-wrapper">
+                            <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen loading="lazy"></iframe>
+                        </div>
+                    </div>`;
+                gallery.innerHTML += videoElement;
+            }
+        });
+    }
+
+    // スクロールイベントで無限スクロール
+    window.onscroll = () => {
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 200) {
+            document.getElementById('loading-more').innerHTML = '動画を読み込んでいます...';
+            displayVideos(videosData.slice(nextPageToken, nextPageToken + videosPerPage));
+            nextPageToken += videosPerPage; // 次のページに進む
+        }
+    }
+
+    // 並べ替えボタンのイベント
+    document.getElementById('sort-latest').addEventListener('click', () => {
+        const sortedVideos = [...videosData].sort((a, b) => new Date(b[0]) - new Date(a[0]));  // 最新順に並べ替え
+        nextPageToken = 0;  // ページをリセット
+        displayVideos(sortedVideos.slice(nextPageToken, nextPageToken + videosPerPage));
+        nextPageToken += videosPerPage;
+    });
+
+    document.getElementById('sort-oldest').addEventListener('click', () => {
+        const sortedVideos = [...videosData].sort((a, b) => new Date(a[0]) - new Date(b[0]));  // 最古順に並べ替え
+        nextPageToken = 0;  // ページをリセット
+        displayVideos(sortedVideos.slice(nextPageToken, nextPageToken + videosPerPage));
+        nextPageToken += videosPerPage;
+    });
+
+    fetchVideos();  // 最初に読み込む
 </script>
 
 </body>
