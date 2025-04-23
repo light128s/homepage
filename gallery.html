@@ -17,10 +17,6 @@
             padding: 10px;
             border-radius: 5px;
             background: #f9f9f9;
-            transition: transform 0.3s ease;
-        }
-        .video-container:hover {
-            transform: scale(1.05); /* ホバー時に少し拡大 */
         }
         .video-title {
             margin: 0 0 10px;
@@ -42,20 +38,21 @@
         }
         .error-message {
             color: red;
-            font-size: 1.2em;
+            text-align: center;
+            padding: 20px;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>ギャラリー</h1>
+        <h1>マイクラサーバーギャラリー</h1>
         <nav>
             <ul>
                 <li><a href="index.html">トップ</a></li>
-                <li><a href="status.html">サーバーステータス</a></li>
+                <li><a href="status.html">ステータス</a></li>
                 <li><a href="gallery.html">ギャラリー</a></li>
+                <li><a href="todo.html">やりがたいこと</a></li>
                 <li><a href="submit.html">動画投稿</a></li>
-                <li><a href="todo.html">イベント</a></li>
             </ul>
         </nav>
     </header>
@@ -64,85 +61,55 @@
         <h2>ゲーム動画クリップ</h2>
         <p><a href="submit.html">新しい動画を投稿する</a></p>
         <div class="video-gallery" id="video-gallery">
-            <!-- 動画はJSで動的に追加 -->
-        </div>
-        <div id="error-message" class="error-message" style="display: none;">
-            動画を読み込めませんでした。後ほどもう一度お試しください。
+            <p>読み込み中...</p>
         </div>
     </main>
 
     <script>
         async function fetchVideos() {
-            const SHEET_ID = 'YOUR_SHEET_ID'; // スプレッドシートのID
-            const API_KEY = 'YOUR_API_KEY'; // Google APIキー
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/フォームの回答1!A2:D?key=${API_KEY}`;
+            const SHEET_ID = '1IMVmbJCQtb82AbKeR_0BiS35zkTNDeytgyLEbYtj-mA';
+            const API_KEY = 'AIzaSyCK3jCuAtLoM9v3ajt-LYMdJ8DKfAmDvo8';
+            const SHEET_NAME = 'フォームの回答１'; // タブ名（Sheet1に変更したならSheet1）
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}!A2:C?key=${API_KEY}`;
+            const gallery = document.getElementById('video-gallery');
+
             try {
                 const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTPエラー: ${response.status} ${response.statusText}`);
+                }
                 const data = await response.json();
                 const videos = data.values || [];
-                const gallery = document.getElementById('video-gallery');
-                const errorMessage = document.getElementById('error-message');
-                gallery.innerHTML = ''; // ギャラリーを初期化
-                errorMessage.style.display = 'none'; // エラーメッセージを非表示
-
+                
+                gallery.innerHTML = '';
                 if (videos.length === 0) {
-                    gallery.innerHTML = '<p>動画がありません。</p>';
+                    gallery.innerHTML = '<p class="error-message">まだ動画が投稿されていません。</p>';
                     return;
                 }
 
-                videos.forEach(([timestamp, title, url, videoId]) => {
-                    if (videoId && videoId.trim() !== "") {  // videoIdが空でない場合のみ埋め込む
+                videos.forEach(([timestamp, title, url], index) => {
+                    const videoId = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
+                    if (videoId) {
                         const videoElement = `
                             <div class="video-container">
-                                <h3 class="video-title">${title}</h3>
+                                <h3 class="video-title">${title || 'タイトルなし'}</h3>
                                 <div class="video-wrapper">
                                     <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen loading="lazy"></iframe>
                                 </div>
                             </div>`;
                         gallery.innerHTML += videoElement;
+                    } else {
+                        console.warn(`無効なYouTube URL（行${index + 2}）: ${url}`);
                     }
                 });
             } catch (error) {
                 console.error('動画取得エラー:', error);
-                document.getElementById('error-message').style.display = 'block'; // エラーメッセージを表示
+                gallery.innerHTML = `<p class="error-message">エラー: ${error.message}</p>`;
             }
         }
 
-        // 初回読み込み
         fetchVideos();
-
-        // 1分ごとに更新（投稿反映用）
         setInterval(fetchVideos, 60000);
-    </script>
-    
-    <!-- BGM -->
-    <audio id="bgm" autoplay loop>
-        <source src="assets/bgm.mp3" type="audio/mp3">
-        お使いのブラウザでは音声が再生できません。
-    </audio>
-
-    <button id="mute-btn" style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 5px 10px; cursor: pointer;">
-        🔊 ミュート
-    </button>
-
-    <script>
-        const bgm = document.getElementById("bgm");
-        const muteBtn = document.getElementById("mute-btn");
-        
-        // 最初の音量を10%に設定（0が無音、1が最大音量）
-        bgm.volume = 0.1; 
-        
-        // 初期状態をsessionStorageから読み込み
-        if (sessionStorage.getItem("muted") === "true") {
-            bgm.muted = true;
-            muteBtn.textContent = "🔇 ミュート解除";
-        }
-
-        muteBtn.addEventListener("click", () => {
-            bgm.muted = !bgm.muted;
-            muteBtn.textContent = bgm.muted ? "🔇 ミュート解除" : "🔊 ミュート";
-            sessionStorage.setItem("muted", bgm.muted);
-        });
     </script>
 </body>
 </html>
