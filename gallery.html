@@ -111,5 +111,39 @@
         fetchVideos();
         setInterval(fetchVideos, 60000);
     </script>
+
+       <!-- BGM -->
+    <audio id="bgm" autoplay loop>
+        <source src="assets/bgm.mp3" type="audio/mp3">
+        お使いのブラウザでは音声が再生できません。
+    </audio>
+
+    <button id="mute-btn" style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 5px 10px; cursor: pointer;">
+        🔊 ミュート
+    </button>
+
+    <script>
+        const bgm = document.getElementById("bgm");
+        const muteBtn = document.getElementById("mute-btn");
+        
+        // 最初の音量を10%に設定（0が無音、1が最大音量）
+        bgm.volume = 0.1; 
+        
+        // 初期状態をsessionStorageから読み込み
+        if (sessionStorage.getItem("muted") === "true") {
+            bgm.muted = true;
+            muteBtn.textContent = "🔇 ミュート解除";
+        }
+
+        muteBtn.addEventListener("click", () => {
+            bgm.muted = !bgm.muted;
+            muteBtn.textContent = bgm.muted ? "🔇 ミュート解除" : "🔊 ミュート";
+            sessionStorage.setItem("muted", bgm.muted);
+        });
+    </script>
+    <footer>
+        <p>&copy; 2025 Lightサーバー</p>
+    </footer>
+    
 </body>
 </html>
