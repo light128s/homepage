@@ -1,0 +1,149 @@
+/* --- 全体設定 --- */
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fdfdfd;
+    color: #222;
+    line-height: 1.6;
+    scroll-behavior: smooth;
+}
+
+/* ヘッダー */
+header {
+    background: linear-gradient(135deg, #d50032, #ff4f5e);
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+    animation: fadeInDown 1s ease-out;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 48px;
+    font-weight: bold;
+}
+
+header p {
+    font-size: 20px;
+    opacity: 0.9;
+}
+
+/* ナビゲーション */
+nav {
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 15px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    transition: all 0.3s ease;
+}
+
+nav a {
+    color: #d50032;
+    text-decoration: none;
+    padding: 10px 20px;
+    margin: 0 10px;
+    font-size: 18px;
+    border-radius: 25px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+nav a:hover {
+    background-color: #d50032;
+    color: white;
+}
+
+/* メインコンテンツ */
+.main-content {
+    padding: 100px 20px 60px 20px; 
+    text-align: center;
+    animation: fadeIn 1s ease-out;
+}
+
+.main-content h2 {
+    font-size: 36px;
+    color: #d50032;
+    margin-bottom: 20px;
+}
+
+.main-content p {
+    font-size: 18px;
+    max-width: 800px;
+    margin: 0 auto 30px auto;
+}
+
+.buttons {
+    margin-top: 30px;
+}
+
+.buttons a {
+    display: inline-block;
+    text-decoration: none;
+    background-color: #d50032;
+    color: white;
+    padding: 12px 25px;
+    margin: 10px;
+    font-size: 18px;
+    border-radius: 30px;
+    transition: background-color 0.3s ease;
+}
+
+.buttons a:hover {
+    background-color: #222;
+}
+
+/* フッター */
+footer {
+    background-color: #f4f4f4;
+    color: #555;
+    padding: 20px;
+    text-align: center;
+    font-size: 14px;
+    margin-top: 40px;
+}
+
+/* BGM */
+audio {
+    display: none;
+}
+
+/* アニメーション */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* レスポンシブ調整 */
+@media screen and (max-width: 600px) {
+    header h1 {
+        font-size: 36px;
+    }
+
+    nav a {
+        display: block;
+        margin: 10px 0;
+    }
+
+    .buttons a {
+        width: 80%;
+        font-size: 16px;
+    }
+}
