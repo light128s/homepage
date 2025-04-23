@@ -33,20 +33,22 @@
         </section>
     </main>
 
- <!-- 音楽再生用のボタンを追加 -->
-<button id="play-btn" style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 5px 10px; cursor: pointer;">
-    🎵 音楽を再生
-</button>
-
-<audio id="bgm" loop>
+ <audio id="bgm" loop>
     <source src="assets/bgm.mp3" type="audio/mp3">
     お使いのブラウザでは音声が再生できません。
 </audio>
 
-<button id="mute-btn" style="position: fixed; top: 50px; right: 10px; z-index: 9999; background: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 5px 10px; cursor: pointer;">
+<!-- ミュートボタン -->
+<button id="mute-btn" style="position: fixed; top: 10px; right: 60px; z-index: 9999;">
     🔊 ミュート
 </button>
 
+<!-- 再生ボタン（初回用） -->
+<button id="play-btn" style="position: fixed; top: 10px; right: 10px; z-index: 9999;">
+    ▶️ 再生
+</button>
+
+<!-- JavaScriptの読み込み -->
 <script src="assets/bgm.js"></script>
     <footer>
         <p>&copy; 2025 Lightサーバー</p>
