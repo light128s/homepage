@@ -52,9 +52,9 @@
         <nav>
             <ul>
                 <li><a href="index.html">トップ</a></li>
-                <li><a href="status.html">ステータス</a></li>
+                <li><a href="status.html">サーバーステータス</a></li>
                 <li><a href="gallery.html">ギャラリー</a></li>
-               <li><a href="submit.html">動画投稿</a></li>
+                <li><a href="submit.html">動画投稿</a></li>
                 <li><a href="todo.html">イベント</a></li>
             </ul>
         </nav>
@@ -91,7 +91,7 @@
                 }
 
                 videos.forEach(([timestamp, title, url, videoId]) => {
-                    if (videoId) {
+                    if (videoId && videoId.trim() !== "") {  // videoIdが空でない場合のみ埋め込む
                         const videoElement = `
                             <div class="video-container">
                                 <h3 class="video-title">${title}</h3>
@@ -115,7 +115,7 @@
         setInterval(fetchVideos, 60000);
     </script>
     
-     <!-- BGM -->
+    <!-- BGM -->
     <audio id="bgm" autoplay loop>
         <source src="assets/bgm.mp3" type="audio/mp3">
         お使いのブラウザでは音声が再生できません。
