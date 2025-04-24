@@ -96,8 +96,9 @@
         };
 
         // 認証コールバック
-        function handleCredentialResponse(response) {
-    console.log('Login response:', response);
+       let accessToken; // グローバル変数
+function handleCredentialResponse(response) {
+    console.log('ログインしたよ:', response);
     if (response.credential) {
         gapi.load('client:auth2', () => {
             gapi.client.init({
@@ -108,12 +109,14 @@
                     accessToken = googleUser.getAuthResponse().access_token;
                     authButton.textContent = 'ログイン済み';
                     authButton.disabled = true;
-                    console.log('アクセストークン取得:', accessToken);
+                    console.log('アクセストークンゲット:', accessToken);
+                }).catch(error => {
+                    console.error('ログイン失敗:', error);
                 });
             });
         });
     } else {
-        console.error('ログイン失敗:', response);
+        console.error('認証情報がないよ:', response);
     }
 }
         // 動画データの取得
