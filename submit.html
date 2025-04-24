@@ -13,11 +13,22 @@
             background: #f0f0f0;
             border-radius: 5px;
             text-align: center;
+            box-sizing: border-box;
         }
         iframe {
             width: 100%;
+            max-width: 100%;
             height: 600px;
             border: none;
+        }
+        @media (max-width: 768px) {
+            .form-container {
+                margin: 10px;
+                padding: 10px;
+            }
+            iframe {
+                height: 500px;
+            }
         }
     </style>
 </head>
@@ -36,16 +47,16 @@
     </header>
 
     <main>
-    <div class="form-container">
-        <h2>新しい動画クリップを投稿</h2>
-        <p>YouTube動画のURLとタイトルを入力してください。投稿後、ギャラリーに反映されます！</p><iframe src="https://docs.google.com/forms/d/e/1A17rmFj0_ryGcEaNxNME4rAt4GxfEcZKmJUiYnrwNF0/viewform?embedded=true" width="640" height="800" frameborder="0" marginheight="0" marginwidth="0">読み込み中…</iframe>
+        <div class="form-container">
+            <h2>新しい動画クリップを投稿</h2>
+            <p>YouTube動画のURLとタイトルを入力してください。投稿後、ギャラリーに反映されます！</p>
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdmd0weMO0ci2es-MedlKcBCnVHnwG-WerKOT03dEjMfGR47w/viewform?embedded=true" width="100%" height="600" frameborder="0" marginheight="0" marginwidth="0">読み込み中…</iframe>
+        </div>
+    </main>
 
-    </div>
-</main>
-
-  <iframe src="bgm.html" style="display:none;" width="0" height="0"></iframe>
+    <iframe src="bgm.html" style="display:none;" width="0" height="0"></iframe>
     <footer>
-        <p>&copy; 2025 Lightサーバー</p>
+        <p>© 2025 Lightサーバー</p>
     </footer>
 </body>
 </html>
