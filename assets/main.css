@@ -1,16 +1,44 @@
+/* --- 全体設定 --- */
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Poppins', 'Arial', sans-serif;
     margin: 0;
     padding: 0;
-    background: #f0f0f0;
-    color: #333;
+    background-color: #fdfdfd;
+    color: #222;
+    line-height: 1.6;
+    scroll-behavior: smooth;
 }
 
+/* --- ヘッダー --- */
 header {
-    background-color: #000;
-    color: #fff;
-    padding: 1em;
+    background: linear-gradient(135deg, #d50032, #ff4f5e);
+    color: white;
+    padding: 60px 0;
     text-align: center;
+    animation: fadeInDown 1s ease-out;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 48px;
+    font-weight: bold;
+}
+
+header p {
+    font-size: 20px;
+    opacity: 0.9;
+}
+
+/* --- ナビゲーション --- */
+nav {
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 15px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    transition: all 0.3s ease;
 }
 
 nav ul {
@@ -21,18 +49,48 @@ nav ul {
     gap: 20px;
 }
 
-nav li a {
-    color: #fff;
+nav a {
+    color: #d50032;
     text-decoration: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 25px;
+    transition: background-color 0.3s, color 0.3s;
 }
 
+nav a:hover {
+    background-color: #d50032;
+    color: white;
+}
+
+/* --- メインコンテンツ --- */
 main {
-    padding: 2em;
+    padding: 100px 20px 60px 20px;
+    text-align: center;
+    animation: fadeIn 1s ease-out;
 }
 
-.omikuji {
-    text-align: center;
-    margin-top: 2em;
+main h2 {
+    font-size: 36px;
+    color: #d50032;
+    margin-bottom: 20px;
+}
+
+main p {
+    font-size: 18px;
+    max-width: 800px;
+    margin: 0 auto 30px auto;
+}
+
+/* --- おみくじ --- */
+#omikuji {
+    margin-top: 3em;
+}
+
+#omikuji-box {
+    margin: 20px auto;
+    font-size: 2.5em;
+    font-weight: bold;
 }
 
 #omikuji-btn {
@@ -56,7 +114,42 @@ main {
     font-weight: bold;
 }
 
-/* アニメーション */
+/* --- BGM --- */
+audio {
+    display: none;
+}
+
+/* --- フッター --- */
+footer {
+    background-color: #f4f4f4;
+    color: #555;
+    padding: 20px;
+    text-align: center;
+    font-size: 14px;
+    margin-top: 40px;
+}
+
+/* --- アニメーション --- */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-5px); }
@@ -66,4 +159,29 @@ main {
 
 .shake {
     animation: shake 0.5s;
+}
+
+/* --- レスポンシブ対応 --- */
+@media screen and (max-width: 600px) {
+    header h1 {
+        font-size: 36px;
+    }
+
+    nav ul {
+        flex-direction: column;
+    }
+
+    nav a {
+        display: block;
+        margin: 10px 0;
+    }
+
+    main {
+        padding: 50px 10px;
+    }
+
+    #omikuji-btn {
+        font-size: 1em;
+        padding: 8px 16px;
+    }
 }
