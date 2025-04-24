@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ギャラリー - Lightサーバー</title>
     <link rel="stylesheet" href="assets/style.css">
+    <script src="https://apis.google.com/js/api.js"></script>
     <style>
         /* 既存のスタイルはそのまま使用（省略） */
         /* 前回のコードから変更なし */
@@ -74,7 +75,7 @@
         // Google Sheets API設定
         const SHEET_ID = '1IMVmbJCQtb82AbKeR_0BiS35zkTNDeytgyLEbYtj-mA';
         const API_KEY = 'AIzaSyCK3jCuAtLoM9v3ajt-LYMdJ8DKfAmDvo8';
-        const CLIENT_ID = '1046123646155-e5v4mrfacfh12vc4n3d0co6bov4qd2nf.apps.googleusercontent.com'; // Google Cloud Consoleから取得
+        const CLIENT_ID = '1046123646155-e5v4mrfacfh12vc4n3d0co6bov4qd2nf.apps.googleusercontent.com';
         const DATA_RANGE = 'フォームの回答 1!A2:E';
         const gallery = document.getElementById('video-gallery');
         const sortSelect = document.getElementById('sort-order');
@@ -96,14 +97,25 @@
 
         // 認証コールバック
         function handleCredentialResponse(response) {
-            const idToken = response.credential;
-            // IDトークンからアクセストークンを取得（簡略化のため、実際はサーバーサイドで交換）
-            // ここでは仮にアクセストークンを保存
-            accessToken = idToken; // 注意: 実際はサーバーサイドでトークン交換が必要
-            authButton.textContent = 'ログイン済み';
-            authButton.disabled = true;
-        }
-
+    console.log('Login response:', response);
+    if (response.credential) {
+        gapi.load('client:auth2', () => {
+            gapi.client.init({
+                clientId: '1046123646155-e5v4mrfacfh12vc4n3d0co6bov4qd2nf.apps.googleusercontent.com',
+                scope: 'https://www.googleapis.com/auth/spreadsheets'
+            }).then(() => {
+                gapi.auth2.getAuthInstance().signIn().then(googleUser => {
+                    accessToken = googleUser.getAuthResponse().access_token;
+                    authButton.textContent = 'ログイン済み';
+                    authButton.disabled = true;
+                    console.log('アクセストークン取得:', accessToken);
+                });
+            });
+        });
+    } else {
+        console.error('ログイン失敗:', response);
+    }
+}
         // 動画データの取得
         async function fetchVideos() {
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${DATA_RANGE}?key=${API_KEY}`;
