@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lightサーバー ホームページ</title>
     <link rel="stylesheet" href="assets/style.css">
-     <link rel="stylesheet" href="assets/main.css">
+     
 </head>
 <body>
     <header>
@@ -27,47 +27,12 @@
             <p>このサーバーは少人数でゆったりと遊ぶMinecraftサーバーです。</p>
         </section>
 
-        <section id="omikuji">
-    <h2>今日の運勢は？</h2>
-    <div id="omikuji-box" class="shake">
-        <div id="omikuji-result">🧧</div>
-    </div>
-    <button id="omikuji-btn">おみくじを引く！</button>
-</section>
-    
-    
+        
 </main>
     <footer>
         <p>&copy; 2025 Lightサーバー</p>
     </footer>
     <iframe src="bgm.html" style="width: 1px; height: 1px; border: none;"></iframe>
-<!-- JavaScript -->
-    <script>
-        const results = ["大吉", "中吉", "小吉", "吉", "末吉", "凶", "大凶"];
-        const colors = {
-            "大吉": "#ff0000",
-            "中吉": "#ff7f00",
-            "小吉": "#ffaa00",
-            "吉": "#228b22",
-            "末吉": "#00bfff",
-            "凶": "#888",
-            "大凶": "#000"
-        };
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const btn = document.getElementById("omikuji-btn");
-            const result = document.getElementById("omikuji-result");
-
-            btn.addEventListener("click", () => {
-                const r = results[Math.floor(Math.random() * results.length)];
-                result.textContent = r;
-                result.style.color = colors[r];
-                result.classList.add("shake");
-
-                // 1秒後にエフェクト解除
-                setTimeout(() => result.classList.remove("shake"), 1000);
-            });
-        });
-    </script>
 </body>
 </html>
