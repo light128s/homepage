@@ -146,9 +146,7 @@ audio {
         width: 80%;
         font-size: 16px;
     }
-}
-
-/* --- ギャラリーページ用のスタイル --- */
+}/* --- ギャラリーページ用のスタイル --- */
 .video-gallery {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
