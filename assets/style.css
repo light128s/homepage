@@ -1,149 +1,67 @@
-/* --- 全体設定 --- */
-body {
-    font-family: 'Poppins', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #fdfdfd;
-    color: #222;
-    line-height: 1.6;
-    scroll-behavior: smooth;
-}
-
-/* ヘッダー */
-header {
-    background: linear-gradient(135deg, #d50032, #ff4f5e);
-    color: white;
-    padding: 60px 0;
-    text-align: center;
-    animation: fadeInDown 1s ease-out;
-}
-
-header h1 {
-    margin: 0;
-    font-size: 48px;
-    font-weight: bold;
-}
-
-header p {
-    font-size: 20px;
-    opacity: 0.9;
-}
-
-/* ナビゲーション */
-nav {
-    background-color: #ffffff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    padding: 15px;
-    text-align: center;
-    position: sticky;
-    top: 0;
-    z-index: 999;
-    transition: all 0.3s ease;
-}
-
-nav a {
-    color: #d50032;
-    text-decoration: none;
-    padding: 10px 20px;
-    margin: 0 10px;
-    font-size: 18px;
-    border-radius: 25px;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-nav a:hover {
-    background-color: #d50032;
-    color: white;
-}
-
-/* メインコンテンツ */
-.main-content {
-    padding: 100px 20px 60px 20px; 
-    text-align: center;
+/* --- ギャラリーページ用のスタイル --- */
+.video-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 50px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
     animation: fadeIn 1s ease-out;
 }
 
-.main-content h2 {
-    font-size: 36px;
+.video-container {
+    background: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.video-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.video-title {
+    font-size: 20px;
     color: #d50032;
-    margin-bottom: 20px;
-}
-
-.main-content p {
-    font-size: 18px;
-    max-width: 800px;
-    margin: 0 auto 30px auto;
-}
-
-.buttons {
-    margin-top: 30px;
-}
-
-.buttons a {
-    display: inline-block;
-    text-decoration: none;
-    background-color: #d50032;
-    color: white;
-    padding: 12px 25px;
-    margin: 10px;
-    font-size: 18px;
-    border-radius: 30px;
-    transition: background-color 0.3s ease;
-}
-
-.buttons a:hover {
-    background-color: #222;
-}
-
-/* フッター */
-footer {
-    background-color: #f4f4f4;
-    color: #555;
-    padding: 20px;
+    margin: 15px 0 10px;
     text-align: center;
-    font-size: 14px;
-    margin-top: 40px;
 }
 
-/* BGM */
-audio {
-    display: none;
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9比率 */
+    height: 0;
 }
 
-/* アニメーション */
-@keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.video-wrapper iframe {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    border: 0;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+/* いいねボタン */
+.like-container {
+    text-align: center;
+    padding: 10px;
 }
 
-/* レスポンシブ調整 */
-@media screen and (max-width: 600px) {
-    header h1 {
-        font-size: 36px;
-    }
+.like-button {
+    background-color: #ff4f5e;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    font-size: 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
 
-    nav a {
-        display: block;
-        margin: 10px 0;
-    }
-
-    .buttons a {
-        width: 80%;
-        font-size: 16px;
-    }
+.like-button:hover {
+    background-color: #d50032;
 }
