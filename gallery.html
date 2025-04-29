@@ -42,24 +42,32 @@
     </footer>
 
     <script>
-        // Google Apps Script設定
-        const APPS_SCRIPT_URL = 'https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbwtWsiFcuvj7Kz6YrP3kziBLNxwW8waf3xmzhK2jKtbyqb2mUyxGw0nEhRVUvusX7fpkw/exec';
+        // Google Sheets API設定
+        const SHEET_ID = '1IMVmbJCQtb82AbKeR_0BiS35zkTNDeytgyLEbYtj-mA';
+        const API_KEY = 'AIzaSyCK3jCuAtLoM9v3ajt-LYMdJ8DKfAmDvo8';
+        const DATA_RANGE = 'フォームの回答 1!A2:E';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwtWsiFcuvj7Kz6YrP3kziBLNxwW8waf3xmzhK2jKtbyqb2mUyxGw0nEhRVUvusX7fpkw/exec';
         const gallery = document.getElementById('video-gallery');
         const sortSelect = document.getElementById('sort-order');
 
         // 動画データの取得
         async function fetchVideos() {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${DATA_RANGE}?key=${API_KEY}`;
             try {
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'GET',
-                    mode: 'cors'
-                });
-                const result = await response.json();
-                if (result.success) {
-                    return result.videos;
-                } else {
-                    throw new Error(result.error || '動画取得に失敗しました');
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTPエラー: ${response.status} ${response.statusText}`);
                 }
+                const data = await response.json();
+                const videos = data.values || [];
+                return videos.map(([timestamp, title, url, , likes], index) => ({
+                    timestamp,
+                    title: title || 'タイトルなし',
+                    url,
+                    videoId: url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1],
+                    likes: parseInt(likes) || 0,
+                    rowIndex: index + 2
+                })).filter(video => video.videoId);
             } catch (error) {
                 console.error('動画取得エラー:', error);
                 gallery.innerHTML = `<p class="error-message">エラー: ${error.message}</p>`;
@@ -67,7 +75,7 @@
             }
         }
 
-        // いいね数を更新
+        // いいね数を更新（Google Apps Scriptを呼び出し）
         async function updateLike(videoId, rowIndex) {
             const button = document.querySelector(`.like-button[data-video-id="${videoId}"]`);
             const currentLikes = parseInt(button.nextElementSibling.textContent) || 0;
@@ -77,8 +85,7 @@
                 const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ rowIndex, newLikeCount }),
-                    mode: 'cors'
+                    body: JSON.stringify({ rowIndex, newLikeCount })
                 });
                 const result = await response.json();
                 if (result.success) {
@@ -87,11 +94,11 @@
                     const videos = await fetchVideos();
                     renderGallery(sortVideos(videos, sortSelect.value));
                 } else {
-                    throw new Error(result.error || 'スクリプトからの応答が失敗');
+                    throw new Error('スクリプトからの応答が失敗');
                 }
             } catch (error) {
                 console.error('いいね更新エラー:', error);
-                alert(`いいねの更新に失敗しました: ${error.message}`);
+                alert('いいねの更新に失敗しました。');
             }
         }
 
@@ -112,7 +119,7 @@
                         </div>
                         <div class="like-container">
                             <button class="like-button" data-video-id="${video.videoId}" data-row="${video.rowIndex}">いいね</button>
-                            <span class="like-count">${video.likeCount || 0} いいね</span>
+                            <span class="like-count">${video.likes} いいね</span>
                         </div>
                     </div>`;
                 gallery.innerHTML += videoElement;
@@ -130,7 +137,7 @@
         // ソート機能
         function sortVideos(videos, sortOrder) {
             if (sortOrder === 'likes-desc') {
-                return [...videos].sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0));
+                return [...videos].sort((a, b) => b.likes - a.likes);
             } else if (sortOrder === 'newest') {
                 return [...videos].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
             } else if (sortOrder === 'oldest') {
