@@ -1,165 +1,100 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ギャラリー - Lightサーバー</title>
-    <link rel="stylesheet" href="assets/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube 動画リスト</title>
+  <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-    <header>
-        <h1>ギャラリー</h1>
-        <nav>
-            <ul>
-                <li><a href="index.html">トップ</a></li>
-                <li><a href="status.html">サーバーステータス</a></li>
-                <li><a href="gallery.html">ギャラリー</a></li>
-                <li><a href="submit.html">動画投稿</a></li>
-                <li><a href="todo.html">イベント</a></li>
-            </ul>
-        </nav>
-    </header>
+  <header>
+    <h1>ギャラリー</h1>
+    <nav>
+      <ul>
+        <li><a href="index.html">トップ</a></li>
+        <li><a href="status.html">サーバーステータス</a></li>
+        <li><a href="gallery.html">ギャラリー</a></li>
+        <li><a href="submit.html">動画投稿</a></li>
+        <li><a href="todo.html">イベント</a></li>
+      </ul>
+    </nav>
+  </header>
 
-    <main>
-        <h2>ゲーム動画クリップ</h2>
-        <div class="controls">
-            <p><a href="submit.html">新しい動画を投稿する</a></p>
-            <div>
-                <select id="sort-order">
-                    <option value="likes-desc">いいね順</option>
-                    <option value="newest">新しい順</option>
-                    <option value="oldest">古い順</option>
-                </select>
-            </div>
-        </div>
-        <div class="video-gallery" id="video-gallery">
-            <p class="loading">読み込み中...</p>
-        </div>
-    </main>
+  <main>
+    <h2>ゲーム動画クリップ</h2>
+    <div class="controls">
+      <p><a href="submit.html">新しい動画を投稿する</a></p>
+    </div>
+    <div class="video-gallery" id="video-container">
+      <p class="loading">読み込み中...</p>
+    </div>
+  </main>
 
-    <footer>
-        <p>© 2025 Lightサーバー</p>
-    </footer>
+  <footer>
+    <p>© 2025 Lightサーバー</p>
+  </footer>
 
-    <script>
-        // Google Sheets API設定
-        const SHEET_ID = '1IMVmbJCQtb82AbKeR_0BiS35zkTNDeytgyLEbYtj-mA';
-        const API_KEY = 'AIzaSyCK3jCuAtLoM9v3ajt-LYMdJ8DKfAmDvo8';
-        const DATA_RANGE = 'フォームの回答 1!A2:E';
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzphgO7H2LU938CI6VMXNz65S_ZNrurrMUxy4I1yUpgA6CEdUtbmQrFdn_RDOZx7SPGaw/exec'; // ここにウェブアプリのURLを貼り付け
-        const gallery = document.getElementById('video-gallery');
-        const sortSelect = document.getElementById('sort-order');
+  <script>
+    const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbyV8Ypt56ZeP-QfERScHZTpu_ExJj3c_JzMuVhBsoPV6yeVB8z0iczXeMi72FGM50hhcw/exec';
+    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+    const fetchUrl = proxyUrl + appsScriptUrl;
 
-        // 動画データの取得
-        async function fetchVideos() {
-            const url = https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${DATA_RANGE}?key=${API_KEY};
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(HTTPエラー: ${response.status} ${response.statusText});
-                }
-                const data = await response.json();
-                const videos = data.values || [];
-                return videos.map(([timestamp, title, url, , likes], index) => ({
-                    timestamp,
-                    title: title || 'タイトルなし',
-                    url,
-                    videoId: url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1],
-                    likes: parseInt(likes) || 0,
-                    rowIndex: index + 2
-                })).filter(video => video.videoId);
-            } catch (error) {
-                console.error('動画取得エラー:', error);
-                gallery.innerHTML = <p class="error-message">エラー: ${error.message}</p>;
-                return [];
+    async function updateLikeCount(rowIndex, newLikeCount) {
+      try {
+        const response = await fetch(fetchUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ rowIndex, newLikeCount }),
+          mode: 'cors',
+        });
+        const result = await response.json();
+        if (result.success) {
+          console.log('いいね数更新成功:', result.newLikeCount);
+          loadVideos(); // 動画リストを再読み込み
+        } else {
+          console.error('いいね数更新失敗:', result.error);
+        }
+      } catch (error) {
+        console.error('いいね更新エラー:', error);
+      }
+    }
+
+    async function loadVideos() {
+      try {
+        const response = await fetch(fetchUrl, {
+          method: 'GET',
+          mode: 'cors',
+        });
+        const result = await response.json();
+        if (result.success) {
+          const videos = result.videos;
+          const container = document.getElementById('video-container');
+          container.innerHTML = '';
+          videos.forEach(video => {
+            if (video.videoId) {
+              const div = document.createElement('div');
+              div.className = 'video-container';
+              div.innerHTML = `
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/${video.videoId}" frameborder="0" allowfullscreen></iframe>
+                <p>いいね数: ${video.likeCount || 0}</p>
+                <button onclick="updateLikeCount(${video.rowIndex}, ${(video.likeCount || 0) + 1})">いいね！</button>
+              `;
+              container.appendChild(div);
             }
+          });
+        } else {
+          console.error('動画取得失敗:', result.error);
         }
+      } catch (error) {
+        console.error('リクエストエラー:', error);
+      }
+    }
 
-        // いいね数を更新（Google Apps Scriptを呼び出し）
-        async function updateLike(videoId, rowIndex) {
-            const currentLikes = parseInt(document.querySelector(.like-button[data-video-id="${videoId}"]).nextElementSibling.textContent) || 0;
-            const newLikeCount = currentLikes + 1;
+    window.onload = loadVideos;
+  </script>
 
-            try {
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ rowIndex, newLikeCount })
-                });
-                const result = await response.json();
-                if (result.success) {
-                    document.querySelector(.like-button[data-video-id="${videoId}"]).nextElementSibling.textContent = ${newLikeCount} いいね;
-                    alert('いいねを更新しました！');
-                    const videos = await fetchVideos();
-                    renderGallery(sortVideos(videos, sortSelect.value));
-                } else {
-                    throw new Error('スクリプトからの応答が失敗');
-                }
-            } catch (error) {
-                console.error('いいね更新エラー:', error);
-                alert('いいねの更新に失敗しました。');
-            }
-        }
-
-        // ギャラリーの描画
-        function renderGallery(videos) {
-            gallery.innerHTML = '';
-            if (videos.length === 0) {
-                gallery.innerHTML = '<p class="error-message">まだ動画が投稿されていません。</p>';
-                return;
-            }
-
-            videos.forEach((video) => {
-                const videoElement = 
-                    <div class="video-container">
-                        <h3 class="video-title">${video.title}</h3>
-                        <div class="video-wrapper">
-                            <iframe src="https://www.youtube.com/embed/${video.videoId}" frameborder="0" allowfullscreen loading="lazy"></iframe>
-                        </div>
-                        <div class="like-container">
-                            <button class="like-button" data-video-id="${video.videoId}" data-row="${video.rowIndex}">いいね</button>
-                            <span class="like-count">${video.likes} いいね</span>
-                        </div>
-                    </div>;
-                gallery.innerHTML += videoElement;
-            });
-
-            document.querySelectorAll('.like-button').forEach(button => {
-                button.addEventListener('click', async () => {
-                    const videoId = button.dataset.videoId;
-                    const rowIndex = button.dataset.row;
-                    await updateLike(videoId, rowIndex);
-                });
-            });
-        }
-
-        // ソート機能
-        function sortVideos(videos, sortOrder) {
-            if (sortOrder === 'likes-desc') {
-                return [...videos].sort((a, b) => b.likes - a.likes);
-            } else if (sortOrder === 'newest') {
-                return [...videos].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            } else if (sortOrder === 'oldest') {
-                return [...videos].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-            }
-            return videos;
-        }
-
-        // 初期化と定期更新
-        async function init() {
-            const videos = await fetchVideos();
-            renderGallery(sortVideos(videos, sortSelect.value));
-
-            sortSelect.addEventListener('change', async () => {
-                const updatedVideos = await fetchVideos();
-                renderGallery(sortVideos(updatedVideos, sortSelect.value));
-            });
-        }
-
-        init();
-        setInterval(init, 60000);
-    </script>
-    
-    <iframe src="bgm.html" style="display:none;" width="0" height="0"></iframe>
+  <iframe src="bgm.html" style="display:none;" width="0" height="0"></iframe>
 </body>
 </html>
