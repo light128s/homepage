@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://accounts.google.com https://www.gstatic.com 'unsafe-inline' 'unsafe-eval' blob: data:;">
     <title>ギャラリー - Lightサーバー</title>
     <link rel="stylesheet" href="assets/style.css">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <header>
@@ -27,7 +25,6 @@
         <div class="controls">
             <p><a href="submit.html">新しい動画を投稿する</a></p>
             <div>
-                <div id="g_id_signin" class="auth-button"></div>
                 <select id="sort-order">
                     <option value="likes-desc">いいね順</option>
                     <option value="newest">新しい順</option>
@@ -48,58 +45,10 @@
         // Google Sheets API設定
         const SHEET_ID = '1IMVmbJCQtb82AbKeR_0BiS35zkTNDeytgyLEbYtj-mA';
         const API_KEY = 'AIzaSyCK3jCuAtLoM9v3ajt-LYMdJ8DKfAmDvo8';
-        const CLIENT_ID = '1046123646155-e5v4mrfacfh12vc4n3d0co6bov4qd2nf.apps.googleusercontent.com';
         const DATA_RANGE = 'フォームの回答 1!A2:E';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyfP-MeERbTpFdmsj6h2qrw-HCqVMIwqN8gGauAZBpHis_HKtKhu9kcHOWpk8tqKrUqw/exec'; // ここにウェブアプリのURLを貼り付け
         const gallery = document.getElementById('video-gallery');
         const sortSelect = document.getElementById('sort-order');
-        let isLoggedIn = false;
-        let userEmail = null;
-
-        // Google Sign-Inの初期化
-        function initializeGoogleSignIn() {
-            google.accounts.id.initialize({
-                client_id: CLIENT_ID,
-                callback: handleCredentialResponse,
-                prompt: 'select_account' // ログイン時にアカウント選択を強制
-            });
-
-            google.accounts.id.renderButton(
-                document.getElementById('g_id_signin'),
-                {
-                    theme: 'outline',
-                    size: 'large',
-                    text: 'signin_with',
-                    shape: 'rectangular'
-                }
-            );
-
-            // ポップアップでログイン画面を表示
-            google.accounts.id.prompt();
-        }
-
-        // ログインコールバック
-        function handleCredentialResponse(response) {
-            if (response.credential) {
-                const profile = parseJwt(response.credential);
-                userEmail = profile.email;
-                isLoggedIn = true;
-                document.getElementById('g_id_signin').innerHTML = `<span>ログイン済み (${userEmail})</span>`;
-                alert('ログイン成功！ただし、いいね機能はサーバー実装が必要です。');
-            } else {
-                console.error('認証情報なし:', response);
-                alert('ログイン認証に失敗しました。');
-            }
-        }
-
-        // JWTトークンをデコードしてプロフィール情報を取得
-        function parseJwt(token) {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            return JSON.parse(jsonPayload);
-        }
 
         // 動画データの取得
         async function fetchVideos() {
@@ -126,13 +75,30 @@
             }
         }
 
-        // いいね数を更新（サーバー実装が必要）
+        // いいね数を更新（Google Apps Scriptを呼び出し）
         async function updateLike(videoId, rowIndex) {
-            if (!isLoggedIn) {
-                alert('いいねするにはGoogleでログインしてください。');
-                return;
+            const currentLikes = parseInt(document.querySelector(`.like-button[data-video-id="${videoId}"]`).nextElementSibling.textContent) || 0;
+            const newLikeCount = currentLikes + 1;
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ rowIndex, newLikeCount })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    document.querySelector(`.like-button[data-video-id="${videoId}"]`).nextElementSibling.textContent = `${newLikeCount} いいね`;
+                    alert('いいねを更新しました！');
+                    const videos = await fetchVideos();
+                    renderGallery(sortVideos(videos, sortSelect.value));
+                } else {
+                    throw new Error('スクリプトからの応答が失敗');
+                }
+            } catch (error) {
+                console.error('いいね更新エラー:', error);
+                alert('いいねの更新に失敗しました。');
             }
-            alert('いいね機能はサーバー実装が必要です。現在の構成では、スプレッドシートを直接更新できません。');
         }
 
         // ギャラリーの描画
@@ -188,9 +154,6 @@
                 const updatedVideos = await fetchVideos();
                 renderGallery(sortVideos(updatedVideos, sortSelect.value));
             });
-
-            // Google Sign-Inの初期化
-            setTimeout(initializeGoogleSignIn, 1000); // ライブラリ読み込みを待つ
         }
 
         init();
