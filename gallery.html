@@ -46,17 +46,17 @@
         const SHEET_ID = '1IMVmbJCQtb82AbKeR_0BiS35zkTNDeytgyLEbYtj-mA';
         const API_KEY = 'AIzaSyCK3jCuAtLoM9v3ajt-LYMdJ8DKfAmDvo8';
         const DATA_RANGE = 'フォームの回答 1!A2:E';
-       const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbyV8Ypt56ZeP-QfERScHZTpu_ExJj3c_JzMuVhBsoPV6yeVB8z0iczXeMi72FGM50hhcw/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwtWsiFcuvj7Kz6YrP3kziBLNxwW8waf3xmzhK2jKtbyqb2mUyxGw0nEhRVUvusX7fpkw/exec';
         const gallery = document.getElementById('video-gallery');
         const sortSelect = document.getElementById('sort-order');
 
         // 動画データの取得
         async function fetchVideos() {
-            const url = https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${DATA_RANGE}?key=${API_KEY};
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${DATA_RANGE}?key=${API_KEY}`;
             try {
                 const response = await fetch(url);
                 if (!response.ok) {
-                    throw new Error(HTTPエラー: ${response.status} ${response.statusText});
+                    throw new Error(`HTTPエラー: ${response.status} ${response.statusText}`);
                 }
                 const data = await response.json();
                 const videos = data.values || [];
@@ -70,14 +70,15 @@
                 })).filter(video => video.videoId);
             } catch (error) {
                 console.error('動画取得エラー:', error);
-                gallery.innerHTML = <p class="error-message">エラー: ${error.message}</p>;
+                gallery.innerHTML = `<p class="error-message">エラー: ${error.message}</p>`;
                 return [];
             }
         }
 
         // いいね数を更新（Google Apps Scriptを呼び出し）
         async function updateLike(videoId, rowIndex) {
-            const currentLikes = parseInt(document.querySelector(.like-button[data-video-id="${videoId}"]).nextElementSibling.textContent) || 0;
+            const button = document.querySelector(`.like-button[data-video-id="${videoId}"]`);
+            const currentLikes = parseInt(button.nextElementSibling.textContent) || 0;
             const newLikeCount = currentLikes + 1;
 
             try {
@@ -88,7 +89,7 @@
                 });
                 const result = await response.json();
                 if (result.success) {
-                    document.querySelector(.like-button[data-video-id="${videoId}"]).nextElementSibling.textContent = ${newLikeCount} いいね;
+                    button.nextElementSibling.textContent = `${newLikeCount} いいね`;
                     alert('いいねを更新しました！');
                     const videos = await fetchVideos();
                     renderGallery(sortVideos(videos, sortSelect.value));
@@ -110,7 +111,7 @@
             }
 
             videos.forEach((video) => {
-                const videoElement = 
+                const videoElement = `
                     <div class="video-container">
                         <h3 class="video-title">${video.title}</h3>
                         <div class="video-wrapper">
@@ -120,7 +121,7 @@
                             <button class="like-button" data-video-id="${video.videoId}" data-row="${video.rowIndex}">いいね</button>
                             <span class="like-count">${video.likes} いいね</span>
                         </div>
-                    </div>;
+                    </div>`;
                 gallery.innerHTML += videoElement;
             });
 
@@ -157,7 +158,13 @@
         }
 
         init();
-        setInterval(init, 60000);
+        setInterval(async () => {
+            try {
+                await init();
+            } catch (error) {
+                console.error('定期更新エラー:', error);
+            }
+        }, 60000);
     </script>
     
     <iframe src="bgm.html" style="display:none;" width="0" height="0"></iframe>
