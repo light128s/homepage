@@ -1,10 +1,50 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>YouTube 動画リスト</title>
+  <link rel="stylesheet" href="assets/style.css" />
 </head>
 <body>
-  <div id="video-container"></div>
+  <header>
+    <h1>ギャラリー</h1>
+    <nav>
+      <ul>
+        <li><a href="index.html">トップ</a></li>
+        <li><a href="status.html">サーバーステータス</a></li>
+        <li><a href="gallery.html">ギャラリー</a></li>
+        <li><a href="submit.html">動画投稿</a></li>
+        <li><a href="todo.html">イベント</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h2>ゲーム動画クリップ</h2>
+    <div class="controls">
+      <p><a href="submit.html">新しい動画を投稿する</a></p>
+      <!-- ソート機能が不要なら以下を削除 -->
+      <div>
+        <select id="sort-order" disabled>
+          <option value="likes-desc">いいね順</option>
+          <option value="newest">新しい順</option>
+          <option value="oldest">古い順</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="video-gallery" id="video-container"></div>
+  </main>
+
+  <footer>
+    <p>© 2025 Lightサーバー</p>
+  </footer>
+
+  <!-- BGM を再生する iframe（非表示）-->
+  <iframe src="bgm.html" style="display:none;" width="0" height="0"></iframe>
+
+  <!-- 元のスクリプトはそのまま -->
   <script>
     const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbyV8Ypt56ZeP-QfERScHZTpu_ExJj3c_JzMuVhBsoPV6yeVB8z0iczXeMi72FGM50hhcw/exec';
     const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
@@ -44,8 +84,9 @@
           const container = document.getElementById('video-container');
           container.innerHTML = '';
           videos.forEach(video => {
-            if (video.videoId) { // videoId が空でない場合のみ表示
+            if (video.videoId) {
               const div = document.createElement('div');
+              div.classList.add('video-container'); // スタイル用のクラス
               div.innerHTML = `
                 <iframe width="560" height="315" src="https://www.youtube.com/embed/${video.videoId}" frameborder="0" allowfullscreen></iframe>
                 <p>いいね数: ${video.likeCount || 0}</p>
