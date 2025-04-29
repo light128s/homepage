@@ -36,8 +36,7 @@
 
   <script>
     const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbyV8Ypt56ZeP-QfERScHZTpu_ExJj3c_JzMuVhBsoPV6yeVB8z0iczXeMi72FGM50hhcw/exec';
-    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-    const fetchUrl = proxyUrl + appsScriptUrl;
+    const fetchUrl = appsScriptUrl; // プロキシを削除
 
     async function updateLikeCount(rowIndex, newLikeCount) {
       try {
@@ -55,9 +54,11 @@
           loadVideos(); // 動画リストを再読み込み
         } else {
           console.error('いいね数更新失敗:', result.error);
+          document.getElementById('video-container').innerHTML = '<p>いいねの更新に失敗しました。後でもう一度お試しください。</p>';
         }
       } catch (error) {
         console.error('いいね更新エラー:', error);
+        document.getElementById('video-container').innerHTML = '<p>エラーが発生しました。後でもう一度お試しください。</p>';
       }
     }
 
@@ -68,10 +69,15 @@
           mode: 'cors',
         });
         const result = await response.json();
+        console.log('取得データ:', result); // デバッグ用
+        const container = document.getElementById('video-container');
+        container.innerHTML = '';
         if (result.success) {
           const videos = result.videos;
-          const container = document.getElementById('video-container');
-          container.innerHTML = '';
+          if (videos.length === 0) {
+            container.innerHTML = '<p>動画がありません。</p>';
+            return;
+          }
           videos.forEach(video => {
             if (video.videoId) {
               const div = document.createElement('div');
@@ -79,16 +85,20 @@
               div.innerHTML = `
                 <iframe width="560" height="315" src="https://www.youtube.com/embed/${video.videoId}" frameborder="0" allowfullscreen></iframe>
                 <p>いいね数: ${video.likeCount || 0}</p>
-                <button onclick="updateLikeCount(${video.rowIndex}, ${(video.likeCount || 0) + 1})">いいね！</button>
+                <button onclick="this.disabled=true; updateLikeCount(${video.rowIndex}, ${(video.likeCount || 0) + 1}).finally(() => this.disabled=false);">いいね！</button>
               `;
               container.appendChild(div);
+            } else {
+              console.warn('無効な videoId:', video);
             }
           });
         } else {
           console.error('動画取得失敗:', result.error);
+          container.innerHTML = '<p>動画の読み込みに失敗しました。後でもう一度お試しください。</p>';
         }
       } catch (error) {
         console.error('リクエストエラー:', error);
+        document.getElementById('video-container').innerHTML = '<p>エラーが発生しました。後でもう一度お試しください。</p>';
       }
     }
 
