@@ -1,38 +1,85 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lightサーバー ホームページ</title>
-    <link rel="stylesheet" href="assets/style.css">
-     
+  <meta charset="UTF-8">
+  <title>YouTube 動画リスト</title>
 </head>
 <body>
-    <header>
-        <h1>Lightサーバーへようこそ！</h1>
-        <nav>
-            <ul>
-                <li><a href="index.html">トップ</a></li>
-                <li><a href="status.html">サーバーステータス</a></li>
-                <li><a href="gallery.html">ギャラリー</a></li>
-                <li><a href="submit.html">動画投稿</a></li>
-                <li><a href="todo.html">イベント</a></li>
-            </ul>
-        </nav>
-    </header>
+  <header>
+    <h1>Lightサーバー 動画リスト</h1>
+    <nav>
+      <ul>
+        <li><a href="index.html">トップ</a></li>
+        <li><a href="status.html">サーバーステータス</a></li>
+        <li><a href="gallery.html">ギャラリー</a></li>
+        <li><a href="submit.html">動画投稿</a></li>
+        <li><a href="todo.html">イベント</a></li>
+      </ul>
+    </nav>
+  </header>
 
-    <main>
-        <section>
-            <h2>サーバー紹介</h2>
-            <p>このサーバーは少人数でゆったりと遊ぶMinecraftサーバーです。</p>
-        </section>
+  <main>
+    <div id="video-container"></div>
+  </main>
 
-        
-</main>
-    <footer>
-        <p>&copy; 2025 Lightサーバー</p>
-    </footer>
-    <iframe src="bgm.html" style="width: 1px; height: 1px; border: none;"></iframe>
+  <script>
+    const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbyV8Ypt56ZeP-QfERScHZTpu_ExJj3c_JzMuVhBsoPV6yeVB8z0iczXeMi72FGM50hhcw/exec';
+    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+    const fetchUrl = proxyUrl + appsScriptUrl;
 
+    async function updateLikeCount(rowIndex, newLikeCount) {
+      try {
+        const response = await fetch(fetchUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ rowIndex, newLikeCount }),
+          mode: 'cors',
+        });
+        const result = await response.json();
+        if (result.success) {
+          console.log('いいね数更新成功:', result.newLikeCount);
+          loadVideos(); // 動画リストを再読み込み
+        } else {
+          console.error('いいね数更新失敗:', result.error);
+        }
+      } catch (error) {
+        console.error('いいね更新エラー:', error);
+      }
+    }
+
+    async function loadVideos() {
+      try {
+        const response = await fetch(fetchUrl, {
+          method: 'GET',
+          mode: 'cors',
+        });
+        const result = await response.json();
+        if (result.success) {
+          const videos = result.videos;
+          const container = document.getElementById('video-container');
+          container.innerHTML = '';
+          videos.forEach(video => {
+            if (video.videoId) {
+              const div = document.createElement('div');
+              div.innerHTML = `
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/${video.videoId}" frameborder="0" allowfullscreen></iframe>
+                <p>いいね数: ${video.likeCount || 0}</p>
+                <button onclick="updateLikeCount(${video.rowIndex}, ${(video.likeCount || 0) + 1})">いいね！</button>
+              `;
+              container.appendChild(div);
+            }
+          });
+        } else {
+          console.error('動画取得失敗:', result.error);
+        }
+      } catch (error) {
+        console.error('リクエストエラー:', error);
+      }
+    }
+
+    window.onload = loadVideos;
+  </script>
 </body>
 </html>
