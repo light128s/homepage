@@ -1,42 +1,14 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YouTube 動画リスト</title>
-  <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-  <header>
-    <h1>ギャラリー</h1>
-    <nav>
-      <ul>
-        <li><a href="index.html">トップ</a></li>
-        <li><a href="status.html">サーバーステータス</a></li>
-        <li><a href="gallery.html">ギャラリー</a></li>
-        <li><a href="submit.html">動画投稿</a></li>
-        <li><a href="todo.html">イベント</a></li>
-      </ul>
-    </nav>
-  </header>
-
-  <main>
-    <h2>ゲーム動画クリップ</h2>
-    <div class="controls">
-      <p><a href="submit.html">新しい動画を投稿する</a></p>
-    </div>
-    <div class="video-gallery" id="video-container">
-      <p class="loading">読み込み中...</p>
-    </div>
-  </main>
-
-  <footer>
-    <p>© 2025 Lightサーバー</p>
-  </footer>
-
+  <div id="video-container"></div>
   <script>
     const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbyV8Ypt56ZeP-QfERScHZTpu_ExJj3c_JzMuVhBsoPV6yeVB8z0iczXeMi72FGM50hhcw/exec';
-    const fetchUrl = appsScriptUrl;
+    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+    const fetchUrl = proxyUrl + appsScriptUrl;
 
     async function updateLikeCount(rowIndex, newLikeCount) {
       try {
@@ -54,11 +26,9 @@
           loadVideos(); // 動画リストを再読み込み
         } else {
           console.error('いいね数更新失敗:', result.error);
-          document.getElementById('video-container').innerHTML = '<p>いいねの更新に失敗しました。後でもう一度お試しください。</p>';
         }
       } catch (error) {
         console.error('いいね更新エラー:', error);
-        document.getElementById('video-container').innerHTML = '<p>エラーが発生しました。後でもう一度お試しください。</p>';
       }
     }
 
@@ -69,42 +39,30 @@
           mode: 'cors',
         });
         const result = await response.json();
-        console.log('取得データ:', result); // デバッグ用
-        const container = document.getElementById('video-container');
-        container.innerHTML = '';
         if (result.success) {
           const videos = result.videos;
-          if (videos.length === 0) {
-            container.innerHTML = '<p>動画がありません。</p>';
-            return;
-          }
+          const container = document.getElementById('video-container');
+          container.innerHTML = '';
           videos.forEach(video => {
-            if (video.videoId) {
+            if (video.videoId) { // videoId が空でない場合のみ表示
               const div = document.createElement('div');
-              div.className = 'video-container';
-              div.innerHTML = `
+              div.innerHTML = 
                 <iframe width="560" height="315" src="https://www.youtube.com/embed/${video.videoId}" frameborder="0" allowfullscreen></iframe>
                 <p>いいね数: ${video.likeCount || 0}</p>
-                <button onclick="this.disabled=true; updateLikeCount(${video.rowIndex}, ${(video.likeCount || 0) + 1}).finally(() => this.disabled=false);">いいね！</button>
-              `;
+                <button onclick="updateLikeCount(${video.rowIndex}, ${(video.likeCount || 0) + 1})">いいね！</button>
+              ;
               container.appendChild(div);
-            } else {
-              console.warn('無効な videoId:', video);
             }
           });
         } else {
           console.error('動画取得失敗:', result.error);
-          container.innerHTML = '<p>動画の読み込みに失敗しました。後でもう一度お試しください。</p>';
         }
       } catch (error) {
         console.error('リクエストエラー:', error);
-        document.getElementById('video-container').innerHTML = '<p>エラーが発生しました。後でもう一度お試しください。</p>';
       }
     }
 
     window.onload = loadVideos;
   </script>
-
-  <iframe src="bgm.html" style="display:none;" width="0" height="0"></iframe>
 </body>
 </html>
