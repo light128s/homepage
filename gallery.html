@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ギャラリー - Lightサーバー</title>
     <link rel="stylesheet" href="assets/style.css">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <header>
-        <h1>Lightサーバーへようこそ！</h1>
+        <h1>ギャラリー</h1>
         <nav>
             <ul>
                 <li><a href="index.html">トップ</a></li>
@@ -26,7 +25,6 @@
         <div class="controls">
             <p><a href="submit.html">新しい動画を投稿する</a></p>
             <div>
-                <button id="auth-button" class="auth-button">Googleでログイン</button>
                 <select id="sort-order">
                     <option value="likes-desc">いいね順</option>
                     <option value="newest">新しい順</option>
@@ -40,56 +38,17 @@
     </main>
 
     <footer>
-        <p>&copy; 2025 Lightサーバー</p>
+        <p>© 2025 Lightサーバー</p>
     </footer>
 
     <script>
         // Google Sheets API設定
         const SHEET_ID = '1IMVmbJCQtb82AbKeR_0BiS35zkTNDeytgyLEbYtj-mA';
         const API_KEY = 'AIzaSyCK3jCuAtLoM9v3ajt-LYMdJ8DKfAmDvo8';
-        const CLIENT_ID = '1046123646155-e5v4mrfacfh12vc4n3d0co6bov4qd2nf.apps.googleusercontent.com';
         const DATA_RANGE = 'フォームの回答 1!A2:E';
+       const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbyV8Ypt56ZeP-QfERScHZTpu_ExJj3c_JzMuVhBsoPV6yeVB8z0iczXeMi72FGM50hhcw/exec';
         const gallery = document.getElementById('video-gallery');
         const sortSelect = document.getElementById('sort-order');
-        const authButton = document.getElementById('auth-button');
-        let accessToken = null;
-        let isLoggedIn = false; // ログイン状態を管理
-
-        // Google Sign-In初期化
-        window.onGoogleLibraryLoad = () => {
-            console.log('Google Sign-Inライブラリ読み込み完了');
-            google.accounts.id.initialize({
-                client_id: CLIENT_ID,
-                callback: handleCredentialResponse
-            });
-            google.accounts.id.renderButton(authButton, {
-                theme: 'outline',
-                size: 'large',
-                text: 'signin_with'
-            });
-            console.log('ログインボタン初期化完了');
-        };
-
-        // 認証コールバック（gapi.auth2を削除してシンプルに）
-        function handleCredentialResponse(response) {
-            console.log('ログイン応答:', response);
-            if (response.credential) {
-                // IDトークンを取得
-                const idToken = response.credential;
-                console.log('IDトークン取得:', idToken);
-                // ログイン状態を更新
-                isLoggedIn = true;
-                authButton.textContent = 'ログイン済み';
-                authButton.disabled = true;
-                // 注意：ここではIDトークンをaccessTokenとして仮置き
-                // 本番ではサーバーサイドでアクセストークンに交換する必要あり
-                accessToken = idToken; // テスト用（後でサーバー実装に変更）
-                alert('ログイン成功！ただし、いいね機能はサーバー実装が必要です。');
-            } else {
-                console.error('認証情報なし:', response);
-                alert('ログイン認証に失敗しました。');
-            }
-        }
 
         // 動画データの取得
         async function fetchVideos() {
@@ -107,7 +66,7 @@
                     url,
                     videoId: url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1],
                     likes: parseInt(likes) || 0,
-                    rowIndex: index + 2 // スプレッドシートの行番号（A2開始なので+2）
+                    rowIndex: index + 2
                 })).filter(video => video.videoId);
             } catch (error) {
                 console.error('動画取得エラー:', error);
@@ -116,40 +75,29 @@
             }
         }
 
-        // いいね数を更新（テスト用：サーバー実装が必要）
+        // いいね数を更新（Google Apps Scriptを呼び出し）
         async function updateLike(videoId, rowIndex) {
-            console.log('いいね開始 - videoId:', videoId, 'rowIndex:', rowIndex, 'トークン:', !!accessToken);
-            if (!isLoggedIn || !accessToken) {
-                alert('いいねするにはGoogleでログインしてください。');
-                return;
-            }
             const currentLikes = parseInt(document.querySelector(.like-button[data-video-id="${videoId}"]).nextElementSibling.textContent) || 0;
             const newLikeCount = currentLikes + 1;
-            console.log('新しいいいね数:', newLikeCount);
+
             try {
-                // 注意：ここではIDトークンを使ってるが、実際にはアクセストークンが必要
-                // サーバーサイド実装がないと、このリクエストは401エラーになる
-                const response = await fetch(
-                    https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/フォームの回答 1!E${rowIndex}?valueInputOption=RAW,
-                    {
-                        method: 'PUT',
-                        headers: {
-                            Authorization: Bearer ${accessToken},
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            values: [[newLikeCount]]
-                        })
-                    }
-                );
-                if (!response.ok) {
-                    throw new Error(APIエラー: ${response.status} ${response.statusText});
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ rowIndex, newLikeCount })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    document.querySelector(.like-button[data-video-id="${videoId}"]).nextElementSibling.textContent = ${newLikeCount} いいね;
+                    alert('いいねを更新しました！');
+                    const videos = await fetchVideos();
+                    renderGallery(sortVideos(videos, sortSelect.value));
+                } else {
+                    throw new Error('スクリプトからの応答が失敗');
                 }
-                document.querySelector(.like-button[data-video-id="${videoId}"]).nextElementSibling.textContent = ${newLikeCount} いいね;
-                console.log('いいね更新成功！');
             } catch (error) {
                 console.error('いいね更新エラー:', error);
-                alert('いいねの更新に失敗しました。サーバー実装が必要です。');
+                alert('いいねの更新に失敗しました。');
             }
         }
 
@@ -176,7 +124,6 @@
                 gallery.innerHTML += videoElement;
             });
 
-            // いいねボタンのイベントリスナー
             document.querySelectorAll('.like-button').forEach(button => {
                 button.addEventListener('click', async () => {
                     const videoId = button.dataset.videoId;
@@ -203,7 +150,6 @@
             const videos = await fetchVideos();
             renderGallery(sortVideos(videos, sortSelect.value));
 
-            // ソート選択時の更新
             sortSelect.addEventListener('change', async () => {
                 const updatedVideos = await fetchVideos();
                 renderGallery(sortVideos(updatedVideos, sortSelect.value));
@@ -211,7 +157,7 @@
         }
 
         init();
-        setInterval(init, 60000); // 1分ごとに更新
+        setInterval(init, 60000);
     </script>
     
     <iframe src="bgm.html" style="display:none;" width="0" height="0"></iframe>
