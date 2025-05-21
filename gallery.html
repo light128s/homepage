@@ -43,7 +43,7 @@
 
     <script>
         // Google Apps Script設定
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby1cXUFZKlEVFcV06D4ATW40fHIcncdwj2EXLK3xUJKWJ6dljogmorFd2Yuxc_wy_j0Hw/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzJ8oFlTB7RREwUXDPUq75SNVd1DHykFvfd1-XS7sdq36A15wm0ahmKujW1YdMF64YU/exec';
         const gallery = document.getElementById('video-gallery');
         const sortSelect = document.getElementById('sort-order');
 
@@ -73,6 +73,8 @@
         // いいね数を更新
         async function updateLike(videoId, rowIndex) {
             const button = document.querySelector(`.like-button[data-video-id="${videoId}"]`);
+            if (!button) return;
+            button.disabled = true; // 多重クリック防止
             const currentLikes = parseInt(button.nextElementSibling.textContent) || 0;
             const newLikeCount = currentLikes + 1;
 
@@ -80,7 +82,7 @@
                 const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ rowIndex, newLikeCount }),
+                    body: JSON.stringify({ rowIndex: Number(rowIndex), newLikeCount }),
                     mode: 'cors'
                 });
                 const result = await response.json();
@@ -95,6 +97,8 @@
             } catch (error) {
                 console.error('いいね更新エラー:', error);
                 alert(`いいねの更新に失敗しました: ${error.message}`);
+            } finally {
+                button.disabled = false;
             }
         }
 
@@ -108,19 +112,23 @@
 
             videos.forEach((video) => {
                 const videoElement = `
-                    <div class="video-container">
-                        <h3 class="video-title">${video.title}</h3>
-                        <div class="video-wrapper">
-                            <iframe src="https://www.youtube.com/embed/${video.videoId}" frameborder="0" allowfullscreen loading="lazy"></iframe>
-                        </div>
-                        <div class="like-container">
-                            <button class="like-button" data-video-id="${video.videoId}" data-row="${video.rowIndex}">いいね</button>
-                            <span class="like-count">${video.likeCount || 0} いいね</span>
-                        </div>
-                    </div>`;
+                        <div class="video-container">
+                            <h3 class="video-title">${video.title}</h3>
+                            <div class="video-wrapper">
+                                <iframe src="https://www.youtube.com/embed/${video.videoId}" frameborder="0" allowfullscreen loading="lazy"></iframe>
+                            </div>
+                            <div class="like-container">
+                                <button class="like-button" data-video-id="${video.videoId}" data-row="${video.rowIndex}">いいね</button>
+                                <span class="like-count">${video.likeCount || 0} いいね</span>
+                            </div>
+                        </div>`;
                 gallery.innerHTML += videoElement;
             });
 
+            // 既存のイベントリスナーをクリアしてから再登録（多重登録防止）
+            document.querySelectorAll('.like-button').forEach(button => {
+                button.replaceWith(button.cloneNode(true));
+            });
             document.querySelectorAll('.like-button').forEach(button => {
                 button.addEventListener('click', async () => {
                     const videoId = button.dataset.videoId;
@@ -146,12 +154,13 @@
         async function init() {
             const videos = await fetchVideos();
             renderGallery(sortVideos(videos, sortSelect.value));
-
-            sortSelect.addEventListener('change', async () => {
-                const updatedVideos = await fetchVideos();
-                renderGallery(sortVideos(updatedVideos, sortSelect.value));
-            });
         }
+
+        // ソート変更時のイベントリスナーは一度だけ登録
+        sortSelect.addEventListener('change', async () => {
+            const updatedVideos = await fetchVideos();
+            renderGallery(sortVideos(updatedVideos, sortSelect.value));
+        });
 
         init();
         setInterval(async () => {
@@ -162,7 +171,7 @@
             }
         }, 60000);
     </script>
-    
+
     <iframe src="bgm.html" style="display:none;" width="0" height="0"></iframe>
 </body>
 </html>
